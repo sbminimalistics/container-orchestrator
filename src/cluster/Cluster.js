@@ -1,10 +1,11 @@
 'use strict';
 
 let Cluster = (function () {
-    let verbose = false;
-    function Cluster(id) {
+    let verbose = true;
+    function Cluster(id, ...nodes) {
         if (verbose) console.log(`>Cluster instantiate using id: ${id}`);
         let _id = id.toString();
+        let _nodes = nodes;
         Object.defineProperty(this, "id", {
             get: function() {
                 return _id;
@@ -14,7 +15,7 @@ let Cluster = (function () {
             get: function() {
                 return {
                     "id": _id,
-                    "nodes": []
+                    "nodes": _nodes.map((c) => c.json)
                 };
             }
         });

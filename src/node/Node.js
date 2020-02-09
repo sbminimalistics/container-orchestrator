@@ -1,20 +1,34 @@
 'use strict';
 
+const spawn = require("cross-spawn");
+
 let Node = (function () {
     let verbose = true;
-    function Node(id) {
+    function Node(id, host, port, spawnNewServer = false) {
         if (verbose) console.log(`>Node instantiate using id: ${id}`);
         let _id = id.toString();
-        /*
+        let _host = host.toString();
+        let _port = Number(port);
+
         Object.defineProperty(this, "id", {
             get: function() {
                 return _id;
             }
         });
-        this.callForService = function () {
-            if (verbose) console.log('>Node.callForService');
-        };
+        Object.defineProperty(this, "json", {
+            get: function() {
+                return {
+                    "id": _id
+                };
+            }
+        });
+        /*
+        this.node = function () {
         */
+
+        if (spawnNewServer) {
+            spawn("node", ["./src/node/server/nodeServer.js", "port", _port], { stdio: "inherit" });
+        }
     }
     return Node;
 })();

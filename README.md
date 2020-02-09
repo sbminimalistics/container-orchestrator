@@ -20,18 +20,18 @@ This container orchestrator written in pure JavaScript that mimics the idea o Sw
     content:
 
     ```
-        {
-            containers: [
-                {
-                    description: "container 0",
-                    replicas: 10
-                },
-                {
-                    description: "container 1",
-                    replicas: 10
-                }
-            ]
-        }
+    {
+        containers: [
+            {
+                description: "container 0",
+                replicas: 10
+            },
+            {
+                description: "container 1",
+                replicas: 10
+            }
+        ]
+    }
     ```
 * **/state**
 
@@ -54,11 +54,8 @@ npm i
 
 ### Dev Start
 
-To get it running on port 80:
+To get it running on port 8000:
 ```
 npm run start
 ```
-or using custom port number:
-```
-npm run start --PORT <YOUR_PORT>
-```
+adjust PORT value inside .env file to change dev server port
