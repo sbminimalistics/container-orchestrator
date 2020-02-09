@@ -1,7 +1,7 @@
 'use strict';
 
 let Cluster = (function () {
-    let verbose = true;
+    let verbose = false;
     function Cluster(id, ...nodes) {
         if (verbose) console.log(`>Cluster instantiate using id: ${id}`);
         let _id = id.toString();

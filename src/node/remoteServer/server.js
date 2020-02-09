@@ -1,6 +1,5 @@
 'use strict';
 
-console.log(`process.argv: ${process.argv}`);
 const args = process.argv.slice(2);
 let port;
 if (args.indexOf("port") > -1) {
@@ -12,7 +11,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-//console.log('>> setup RESTful..');
+console.log('create Node Server RESTful endpoints...');
 
 //setup express middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,4 +24,4 @@ app.use("/", (req, res) => {res.end("node")});
 
 //start app listen
 app.listen(port);
-console.log('RESTful Node API server started on: ' + port);
+console.log(`...Node Server API server started on port: ${port}`);

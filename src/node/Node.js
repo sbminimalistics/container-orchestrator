@@ -3,7 +3,7 @@
 const spawn = require("cross-spawn");
 
 let Node = (function () {
-    let verbose = true;
+    let verbose = false;
     function Node(id, host, port, spawnNewServer = false) {
         if (verbose) console.log(`>Node instantiate using id: ${id}`);
         let _id = id.toString();
@@ -27,7 +27,7 @@ let Node = (function () {
         */
 
         if (spawnNewServer) {
-            spawn("node", ["./src/node/server/nodeServer.js", "port", _port], { stdio: "inherit" });
+            spawn("node", ["./src/node/remoteServer/server.js", "port", _port], { stdio: "inherit" });
         }
     }
     return Node;
