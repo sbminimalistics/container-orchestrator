@@ -18,7 +18,8 @@ This container orchestrator written in pure JavaScript that mimics the idea o Sw
     method: `POST`
 
     content:
-        ```{
+        ```
+        {
             containers: [
                 {
                     description: "container 0",
@@ -29,7 +30,8 @@ This container orchestrator written in pure JavaScript that mimics the idea o Sw
                     replicas: 10
                 }
             ]
-        }```
+        }
+        ```
 * **/state**
 
     method: `GET`
