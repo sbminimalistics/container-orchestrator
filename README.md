@@ -3,15 +3,20 @@
 This container orchestrator written in pure JavaScript that mimics the idea o Swarm or Kubernetes running on Docker. For the time being only the development version is available. Buy simply running `npm run start` some predefined set of clusters and their nodes is created. Based on which, using the RESTful endpoints given beneath, further control is possible. In this setup only one instance of orchestrator is created.
 
 ## Orchestrator endpoints **<host>/**:
-* **clusters**
+* **/clusters**
+
     method : `GET`
-* **clusters/:cluster_id**
+* **/clusters/:cluster_id**
+
     method: `GET` | `PUT` | `DELETE`
+
     URL param: `cluster_id=[alphanumeric]`
 
 ## Cluster endpoints **<host>/clusters/:cluster_id/**:
-* **service**
+* **/service**
+
     method: `POST`
+
     content:
         `{
             containers: [
@@ -25,10 +30,11 @@ This container orchestrator written in pure JavaScript that mimics the idea o Sw
                 }
             ]
         }`
-* **state**
+* **/state**
 
     method: `GET`
-* **stats**
+* **/stats**
+
     method: `GET`
 
 ## Development environment
