@@ -19,7 +19,7 @@ This container orchestrator written in pure JavaScript that mimics the idea o Sw
 
     content:
 
-```
+    ```
         {
             containers: [
                 {
@@ -32,7 +32,7 @@ This container orchestrator written in pure JavaScript that mimics the idea o Sw
                 }
             ]
         }
-```
+    ```
 * **/state**
 
     method: `GET`
