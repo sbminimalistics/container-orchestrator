@@ -22,6 +22,12 @@ let Cluster = (function () {
         this.callForService = function () {
             if (verbose) console.log('>Cluster.callForService');
         };
+
+        //make initial connections between nodes
+        for (let i = 1; i < _nodes.length; i++) {
+            console.log(`>>> Cluster join ${_nodes[i].address} to ${_nodes[0].address}`);
+            _nodes[0].join(_nodes[i].address);
+        }
     }
     return Cluster;
 })();

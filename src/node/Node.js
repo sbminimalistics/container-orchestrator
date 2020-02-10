@@ -1,8 +1,9 @@
 'use strict';
 
 const spawn = require("cross-spawn");
+const request = require('request');
 
-let Node = (function () {
+let Node = (function() {
     let verbose = false;
     function Node(id, host, port, spawnNewServer = false) {
         if (verbose) console.log(`>Node instantiate using id: ${id}`);
@@ -15,6 +16,12 @@ let Node = (function () {
                 return _id;
             }
         });
+        Object.defineProperty(this, "address", {
+            get: function() {
+                //return `${_host.includes("http") ? "" : "http://"}${_host}:${_port}`;
+                return `${_host}:${_port}`;
+            }
+        });
         Object.defineProperty(this, "json", {
             get: function() {
                 return {
@@ -22,12 +29,20 @@ let Node = (function () {
                 };
             }
         });
+        this.join = (address) => {
+            request.put(`http://${this.address}/nodes/${address}`, (error, response, body) => {
+                if (verbose) {
+                    console.log("error:", error, "statusCode:", response && response.statusCode);
+                    console.log("body:", body);
+                }
+            });
+        }
         /*
         this.node = function () {
         */
 
         if (spawnNewServer) {
-            spawn("node", ["./src/node/remoteServer/server.js", "port", _port], { stdio: "inherit" });
+            spawn("node", ["./src/node/remoteServer/server.js", "host", _host, "port", _port], { stdio: "inherit" });
         }
     }
     return Node;

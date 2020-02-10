@@ -1,6 +1,6 @@
 'use strict';
 
-let Orchestrator = function () {
+let Orchestrator = function() {
     let verbose = false;
     function Orchestrator(id) {
         if (verbose) console.log(`>Orchestrator instantiate using id: ${id}`);
@@ -23,7 +23,7 @@ let Orchestrator = function () {
             }
         });
 
-        this.findCluster = function (id) {
+        this.findCluster = function(id) {
             if (verbose) console.log(`>Orchestrator.findCluster id:${id}`);
             let res;
             _clusters.forEach((cluster) => {
@@ -34,7 +34,7 @@ let Orchestrator = function () {
             return res;
         };
 
-        this.addCluster = function (cluster) {
+        this.addCluster = function(cluster) {
             if (verbose) console.log(`>Orchestrator.addCluster`);
             if (cluster.id != null) {
                 if (this.findCluster(cluster.getId) == null) {
