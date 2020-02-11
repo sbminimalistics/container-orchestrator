@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const verbose = true;
+const verbose = false;
 
 const nodeRouter = (controller) => {
     const router = express.Router();
@@ -20,8 +20,9 @@ const nodeRouter = (controller) => {
     });
     router.route("/data").post((req, res) => {
         if (verbose) console.log(`remote server router '/data' data: ${JSON.stringify(req.body)}`);
-        controller.dta(JSON.parse(req.body));
-        res.send("received");
+        controller.data(req.body).then((data) => {
+            res.json(data);
+        })
     });
     router.use((req, res, next) => {
         res.status(500).send("endpoint not found!");

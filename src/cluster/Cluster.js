@@ -24,10 +24,18 @@ let Cluster = (function () {
         };
 
         //make initial connections between nodes
-        for (let i = 1; i < _nodes.length; i++) {
-            console.log(`>>> Cluster join ${_nodes[i].address} to ${_nodes[0].address}`);
-            _nodes[0].join(_nodes[i].address);
+        //for (let i = 1; i < _nodes.length; i++) {
+        for (let i = 0; i < _nodes.length; i++) {
+            //for (let j = 0; j < _nodes.length; j++) {
+                console.log(`call join`);
+                if (i != 0) {
+                    //_nodes[i].join(_nodes[j].address);
+                    _nodes[0].join(_nodes[i].address);
+                }
+            //}
         }
+        //_nodes[0].join(_nodes[1].address);
+        //_nodes[0].join(_nodes[2].address);
     }
     return Cluster;
 })();

@@ -30,6 +30,7 @@ let Node = (function() {
             }
         });
         this.join = (address) => {
+            console.log(`Node(${this.address}) join ${address}`);
             request.put(`http://${this.address}/nodes/${address}`, (error, response, body) => {
                 if (verbose) {
                     console.log("error:", error, "statusCode:", response && response.statusCode);
