@@ -5,6 +5,17 @@ const request = require('request');
 
 let RaftController = (function () {
     let verbose = true;
+    let write = (url, packet, callback) => {
+        request.post(`http://${url}/data`, {json: packet}, (error, response, body) => {
+            if (verbose) {
+                //console.log("error:", error);
+                //console.log("statusCode:", response.statusCode);
+                console.log("RaftController post return body:", body);
+            }
+            callback(null, body);
+        });
+    }
+
     function RaftController(host, port) {
         if (verbose) console.log(`>RaftController instantiate using host: ${host} port: ${port}`);
         let _host = host.toString();
@@ -45,56 +56,53 @@ let RaftController = (function () {
             }
         });
 
-        this.write = (url, packet, callback) => {
-            if (verbose) console.log(`RaftController write on ${_host}:${_port} data packet: ${JSON.stringify(packet)}`);
-            request.post(`http://${url}/data`, {json: packet}, (error, response, body) => {
-                if (false) { //if (verbose) {
-                    console.log("error:", error);
-                    console.log("statusCode:", response && response.statusCode);
-                    console.log("body:", body);
-                }
-                callback(null, body);
-            });
-        }
-
         this.join = function(url) {
-            ///console.log(`join on host: ${host} port: ${port}  target url: ${url}`);
-            _raft.join(url, (packet, callback) => {
-                //${host} port: ${port}
-                console.log(`=============call for WRITE on host: ${url}  target url: ${packet.address}`);
-                this.write(packet.address, packet, callback);
+            if (verbose) console.log(`join on host: ${host} port: ${port}  target url: ${url}`);
+            return new Promise((res, rej) => {
+                let n = _raft.join(url, function(packet, callback){
+                    if (verbose) console.log(`RaftController 'join' write ${host}:${port} -> ${url} packet: ${JSON.stringify(packet)}`);
+                    write(url, packet, callback);
+                }.bind(this));
+                //console.log(n);
+                res(n);
             });
         }
 
         this.data = (jsonData) => {
-            //if (verbose) console.log(`RaftController dataIN on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
+            if (verbose) console.log(`RaftController dataIN on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
             return new Promise((res, rej) => {
-                _raft.once("data", (data) => {
-                    //console.log(`RaftController dataOUT on ${_host}:${_port} data: ${JSON.stringify(data)}`);
-                    res(data);
-                });
-                _raft.emit("data", jsonData);
+                _raft.emit("data", jsonData, function (packet, callback) {
+                    if (verbose) console.log(`RaftController 'data' write ${host}:${port} -> ${jsonData.address} packet: ${JSON.stringify(packet)}`);
+                    res(packet);
+                }.bind(this));
             });
         }
 
         LifeRaft.prototype.initialize = (options) => {
-            console.log(`RaftController LifeRaft initialize options: ${JSON.stringify(options)}`);
+            if (verbose) console.log(`RaftController LifeRaft instance initialized with options: ${JSON.stringify(options)}`);
         }
 
         const _raft = new LifeRaft(`${_host}:${_port}`, {
-            "election min": "2 second",//'200 millisecond',
-            "election max": "5 second",
-            "write": (packet, callback) => {this.write(`${packet.address}`, packet, callback);}
+            "heartbeat": "2 second",
+            "election min": "10 second",//'200 millisecond',
+            "election max": "15 second"
+            //"write": (packet, callback) => {this.write(`${packet.address}`, packet, callback);}
         });
 
         _raft.on("heartbeat", (data) => {
-            if (verbose) console.log(`>RaftController ${_host}:${_port} heartbeat`);
+            if (verbose) console.log(`>RaftController ${_host}:${_port} ++++++++++++++++++ heartbeat data: ${data}`);
         })
         _raft.on("candidate", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} candidate`);
         })
         _raft.on("state change", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} state change data: ${data}`);
+        })
+        _raft.on("join", (data) => {
+            if (verbose) console.log(`>RaftController ${_host}:${_port} join data: ${data}`);
+        })
+        _raft.on("leader change", (data) => {
+            if (verbose) console.log(`>RaftController ${_host}:${_port} ++++ leader change ++++ data: ${data}`);
         })
     }
     return RaftController;
