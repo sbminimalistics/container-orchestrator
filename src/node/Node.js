@@ -4,7 +4,7 @@ const spawn = require("cross-spawn");
 const request = require('request');
 
 let Node = (function() {
-    let verbose = true;
+    let verbose = false;
     function Node(id, host, port, spawnNewServer = false) {
         if (verbose) console.log(`>Node instantiate using id: ${id}`);
         let _id = id.toString();

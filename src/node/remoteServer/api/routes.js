@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const verbose = true;
+const verbose = false;
 
 const nodeRouter = (controller) => {
     const router = express.Router();

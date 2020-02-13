@@ -2,6 +2,7 @@
 
 const LifeRaft = require('liferaft');
 const request = require('request');
+const Log = require('../../../node_modules/liferaft/log');
 
 let RaftController = (function () {
     let verbose = false;
@@ -81,7 +82,8 @@ let RaftController = (function () {
         const _raft = new LifeRaft(`${_host}:${_port}`, {
             "heartbeat": "1000 millisecond",
             "election min": "3000 millisecond",//'200 millisecond',
-            "election max": "6000 millisecond"
+            "election max": "6000 millisecond",
+            "Log": Log
         });
 
         _raft.on("heartbeat", (data) => {
@@ -100,7 +102,7 @@ let RaftController = (function () {
             if (verbose) console.log(`>RaftController ${_host}:${_port} leader change data: ${data}`);
         })
         _raft.on("data", (data) => {
-            if (true) console.log(`>RaftController on('data' @ ${_host}:${_port} dead-end data: ${JSON.stringify(data)}`);
+            if (verbose) console.log(`>RaftController on('data' @ ${_host}:${_port} dead-end data: ${JSON.stringify(data)}`);
         })
     }
     return RaftController;
