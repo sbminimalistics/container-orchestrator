@@ -25,6 +25,7 @@ const nodeRouter = (controller) => {
         controller.data(req.body).then((data) => {
             if (verbose) console.log(`router '/data' return to ${req.body.address} data: ${JSON.stringify(data)}`);
             res.json(JSON.stringify(data));
+            //res.send("okok");
         })
     });
     router.use((req, res, next) => {
