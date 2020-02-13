@@ -58,6 +58,13 @@ let RaftController = (function () {
 
         this.join = function(url) {
             if (verbose) console.log(`join on host: ${host} port: ${port}  target url: ${url}`);
+            _raft.join(url, (function(u){var url2=u; return function(packet, callback){
+                request.post(`http://${url2}/data`, {json: packet}, (error, response, body) => {
+                    callback(null, body);
+                });
+            }})(url));
+            return Promise.resolve("ok");
+            /*
             return new Promise((res, rej) => {
                 let n = _raft.join(url, function(packet, callback){
                     if (verbose) console.log(`RaftController 'join' write ${host}:${port} -> ${url} packet: ${JSON.stringify(packet)}`);
@@ -66,15 +73,28 @@ let RaftController = (function () {
                 //console.log(n);
                 res(n);
             });
+            */
         }
 
         this.data = (jsonData) => {
             if (verbose) console.log(`RaftController dataIN on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
             return new Promise((res, rej) => {
+                _raft.emit("data", jsonData, function(data){
+                    //.write(data);
+                    //console.log(`RaftController callback after "data" emit data: ${JSON.stringify(data)}`);
+                    //console.log(`RaftController callback after "data" emit _raft: ${_raft.nodes} _raft.nodes.length: ${_raft.nodes.length}`);
+                    //for(var i=0; i<_raft.nodes.length; i++) {
+                        //console.log(`_raft.address: ${_raft.address} _raft.nodes[i].address: ${_raft.nodes[i].address}`);
+                        //write(_raft.nodes[i].address, data, (err, data2)=>{console.log(`nested callback with data: ${data}`)})
+                    //}
+                    res(data);
+                  }.bind(this));
+                /*
                 _raft.emit("data", jsonData, function (packet, callback) {
                     if (verbose) console.log(`RaftController 'data' write ${host}:${port} -> ${jsonData.address} packet: ${JSON.stringify(packet)}`);
                     res(packet);
                 }.bind(this));
+                */
             });
         }
 
@@ -83,9 +103,10 @@ let RaftController = (function () {
         }
 
         const _raft = new LifeRaft(`${_host}:${_port}`, {
-            "heartbeat": "2 second",
-            "election min": "10 second",//'200 millisecond',
-            "election max": "15 second"
+            "heartbeat": "500 millisecond",
+            "election min": "1500 millisecond",//'200 millisecond',
+            "election max": "3000 millisecond"
+            //"threshold": "8 s"
             //"write": (packet, callback) => {this.write(`${packet.address}`, packet, callback);}
         });
 
@@ -102,7 +123,21 @@ let RaftController = (function () {
             if (verbose) console.log(`>RaftController ${_host}:${_port} join data: ${data}`);
         })
         _raft.on("leader change", (data) => {
-            if (verbose) console.log(`>RaftController ${_host}:${_port} ++++ leader change ++++ data: ${data}`);
+            if (true) console.log(`>RaftController ${_host}:${_port} leader change data: ${data}`);
+        })
+        _raft.on("data", (data) => {
+            console.log(`>RaftController on('data' dead-end`);
+            /*
+            if (true) console.log(`>RaftController ${_host}:${_port} ++++ data ++++ data: ${JSON.stringify(data)}`);
+            if (data) {
+                write(data.address, data, (err, data) => {
+                    console.log(`on 'data' write callback err:${err} data:${data}`);
+                    _raft.emit("data", data);
+                })
+            } else {
+                console.log("no data.. stop the chain!");
+            }
+            */
         })
     }
     return RaftController;

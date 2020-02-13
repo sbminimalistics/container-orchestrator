@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const verbose = false;
+const verbose = true;
 
 const nodeRouter = (controller) => {
     const router = express.Router();
@@ -11,7 +11,7 @@ const nodeRouter = (controller) => {
     });
     router.route("/nodes/:url").put((req, res) => {
         if (verbose) console.log(`remote server router '/nodes/:url' url: ${req.params.url}`);
-        controller.join(`${req.params.url}`).then((data) => {
+        controller.join(`${req.params.url}`, true).then((data) => {
             if (verbose) console.log(`remote server router join returned: ${data}`);
             res.send("ok");
         });

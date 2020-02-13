@@ -4,7 +4,7 @@ const spawn = require("cross-spawn");
 const request = require('request');
 
 let Node = (function() {
-    let verbose = true;
+    let verbose = false;
     function Node(id, host, port, spawnNewServer = false) {
         if (verbose) console.log(`>Node instantiate using id: ${id}`);
         let _id = id.toString();
@@ -29,12 +29,12 @@ let Node = (function() {
                 };
             }
         });
-        this.join = (address) => {
+        this.join = (address, createInstance) => {
             console.log(`Node(${this.address}) join ${address}`);
             request.put(`http://${this.address}/nodes/${address}`, (error, response, body) => {
                 if (verbose) {
-                    console.log("error:", error, "statusCode:", response && response.statusCode);
-                    console.log("body:", body);
+                    console.log("Node error:", error, "statusCode:", response && response.statusCode);
+                    console.log("Node body:", body);
                 }
             });
         }
