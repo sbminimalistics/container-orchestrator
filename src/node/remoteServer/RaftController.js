@@ -81,9 +81,10 @@ let RaftController = (function () {
 
         const _raft = new LifeRaft(`${_host}:${_port}`, {
             "heartbeat": "1000 millisecond",
-            "election min": "3000 millisecond",//'200 millisecond',
+            "election min": "2000 millisecond",
             "election max": "6000 millisecond",
-            "Log": Log
+            "Log": Log,
+            "path": `level_dbs/db_${_port}`
         });
 
         _raft.on("heartbeat", (data) => {
