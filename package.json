@@ -17,7 +17,7 @@
         "cross-spawn": "^7.0.1",
         "dotenv": "^8.2.0",
         "express": "^4.16.2",
-        "liferaft": "git@github.com:sbminimalistics/liferaft.git",
+        "liferaft": "git+https://github.com/sbminimalistics/liferaft.git",
         "request": "^2.88.0"
     }
 }
