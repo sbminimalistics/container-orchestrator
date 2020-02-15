@@ -18,8 +18,8 @@ orchestrator0.addCluster(
         0,
         new Node("node_0", defaultNodeHost, 8001, true),
         new Node("node_1", defaultNodeHost, 8002, true),
-        new Node("node_3", defaultNodeHost, 8003, true)
-        //new Node("node_4", defaultNodeHost, 8005, true),
+        new Node("node_2", defaultNodeHost, 8003, true),
+        new Node("node_3", defaultNodeHost, 8004, true)
         //new Node("node_5", defaultNodeHost, 8006, true)//,
         //new Node("node_6", defaultNodeHost, 8007, true)//,
     )

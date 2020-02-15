@@ -28,7 +28,7 @@ let Orchestrator = function() {
             let res;
             _clusters.forEach((cluster) => {
                 if (cluster.id === id) {
-                    return res = cluster.json;
+                    return res = cluster;//.json;
                 }
             })
             return res;

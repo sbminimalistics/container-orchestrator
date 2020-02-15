@@ -3,22 +3,16 @@
 const LifeRaft = require('liferaft');
 const request = require('request');
 const Log = require('../../../node_modules/liferaft/log');
+const objMap = require("../../utils/obj-update");
 
 let RaftController = (function () {
-    let verbose = false;
-    let write = (url, packet, callback) => {
-        request.post(`http://${url}/data`, {json: packet}, (error, response, body) => {
-            if (verbose) {
-                console.log("RaftController post return body:", body);
-            }
-            callback(null, body);
-        });
-    }
-
+    const verbose = false;
+    
     function RaftController(host, port) {
         if (verbose) console.log(`>RaftController instantiate using host: ${host} port: ${port}`);
         let _host = host.toString();
         let _port = Number(port);
+        let _connections = {};
 
         Object.defineProperty(this, "host", {
             get: function() {
@@ -54,15 +48,36 @@ let RaftController = (function () {
                 return _raft.nodes;
             }
         });
-
-        this.join = function(url) {
+        Object.defineProperty(this, "connections", {
+            set: function(value) {
+                objMap(_connections, value);
+                if (verbose) console.log(`>RaftController connections set ${JSON.stringify(_connections)}`);
+            },
+            get: function() {
+                return _connections;
+            }
+        });
+        
+        RaftController.prototype.checkConnection = (url) => {
+            if (this.connections[url] === 1) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
+        RaftController.prototype.join = function(url) {
             if (verbose) console.log(`join on host: ${host} port: ${port}  target url: ${url}`);
-            _raft.join(url, (function(u){var url2=u; return function(packet, callback){
-                request.post(`http://${url2}/data`, {json: packet}, (error, response, body) => {
-                    if (verbose) console.log("RaftController ------------> post return body:", JSON.parse(body));
-                    callback(null, JSON.parse(body));
-                });
-            }})(url));
+            _raft.join(url, (function(u, c){var url2=u; var check = c; return function(packet, callback){
+                if (check(url2) === true) {
+                    request.post(`http://${url2}/data`, {json: packet}, (error, response, body) => {
+                        if (verbose) console.log("RaftController post return body:", JSON.parse(body));
+                        callback(null, JSON.parse(body));
+                    });
+                } else {
+                    callback(new Error("connection blocked in configuration"));
+                }
+            }})(url, this.checkConnection));
             return Promise.resolve("ok");
         }
 
@@ -74,11 +89,11 @@ let RaftController = (function () {
                 }.bind(this));
             });
         }
-
+        
         LifeRaft.prototype.initialize = (options) => {
             if (verbose) console.log(`RaftController LifeRaft instance initialized with options: ${JSON.stringify(options)}`);
         }
-
+        
         const _raft = new LifeRaft(`${_host}:${_port}`, {
             "heartbeat": "1000 millisecond",
             "election min": "2000 millisecond",
@@ -86,7 +101,7 @@ let RaftController = (function () {
             "Log": Log,
             "path": `level_dbs/db_${_port}`
         });
-
+        
         _raft.on("heartbeat", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} ++++++++++++++++++ heartbeat data: ${data}`);
         })

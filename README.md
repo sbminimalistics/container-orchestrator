@@ -40,6 +40,8 @@ This container orchestrator written in pure JavaScript that mimics the idea o Sw
 
     method: `GET`
 
+Quick example for sending sending json using cURL: curl -i -X POST -H "Content-Type: application/json" -d '{"key":"val"}' http://localhost:8000/clusters/0/connections
+
 ## Development environment
 
 Project is developed on Windows machine.

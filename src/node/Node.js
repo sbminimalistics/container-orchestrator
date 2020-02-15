@@ -31,11 +31,15 @@ let Node = (function() {
         });
         this.join = (address, createInstance) => {
             console.log(`Node(${this.address}) join ${address}`);
-            request.put(`http://${this.address}/nodes/${address}`, (error, response, body) => {
-                if (verbose) {
-                    console.log("Node error:", error, "statusCode:", response && response.statusCode);
-                    console.log("Node body:", body);
-                }
+            return new Promise((res, rej) => {
+                request.post(`http://${this.address}/nodes/${address}`, (error, response, body) => {
+                    if (verbose) {
+                        console.log("Node error:", error, "statusCode:", response && response.statusCode);
+                        console.log("Node body:", body);
+                    }
+                    if (error != null) rej(error)
+                    else res(body)
+                })
             });
         }
         /*

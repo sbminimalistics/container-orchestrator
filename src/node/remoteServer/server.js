@@ -12,18 +12,18 @@ if (args.indexOf("port") > -1) {
 } else {
     throw(new Error(`given port: ${port} is not valid; node serve must run on uniq port`));
 }
+
+const verbose = false;
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-
-console.log(`initialize LifeRaft on ${host}:${port}...`);
+if (verbose === true) console.log(`initialize LifeRaft on ${host}:${port}...`);
 const RaftController = require("./RaftController");
 const raftController = new RaftController(host, port);
-console.log(`...LifeRaft instance created with state: ${raftController.state}`);
+if (verbose === true) console.log(`...LifeRaft instance created with state: ${raftController.state}`);
 
-
-console.log('create Node Server RESTful endpoints...');
+if (verbose === true) console.log('create Node Server RESTful endpoints...');
 //setup express middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -34,4 +34,4 @@ app.use("/", routes(raftController));
 
 //start app listen
 app.listen(port);
-console.log(`...Node Server API server started on port: ${port}`);
+if (verbose === true) console.log(`...Node Server API server started on port: ${port}`);
