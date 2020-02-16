@@ -13,20 +13,22 @@ const orchestrator0 = require('./src/orchestrator/Orchestrator');
 //add couple of initial clusters
 console.log('setup the main orchestrator...');
 const defaultNodeHost = process.env.DEFAULT_HOST || "localhost";
+//node (network address) might also be connected later on the fly
 orchestrator0.addCluster(
     new Cluster(
-        0,
-        new Node("node_0", defaultNodeHost, 8001, true),
-        new Node("node_1", defaultNodeHost, 8002, true),
-        new Node("node_2", defaultNodeHost, 8003, true),
-        new Node("node_3", defaultNodeHost, 8004, true)
-        //new Node("node_5", defaultNodeHost, 8006, true)//,
-        //new Node("node_6", defaultNodeHost, 8007, true)//,
+        0, //cluster id
+        new Node({"id": "node_0", "host": defaultNodeHost, "port": 8001, "capacity": 100, "spawnNewServer": true}), //new node on localhost:8001
+        new Node({"id": "node_1", "host": defaultNodeHost, "port": 8002, "capacity": 100, "spawnNewServer": true}), //on localhost:8002
+        new Node({"id": "node_2", "host": defaultNodeHost, "port": 8003, "capacity": 100, "spawnNewServer": true}), //on localhost:8003
+        new Node({"id": "node_3", "host": defaultNodeHost, "port": 8004, "capacity": 100, "spawnNewServer": true}),
+        new Node({"id": "node_4", "host": defaultNodeHost, "port": 8005, "capacity": 100, "spawnNewServer": true})
     )
 );
+console.log('...orchestrator setup done');
+
+//for the time being only one cluster is used;
 //orchestrator0.addCluster(new Cluster(1));
 //orchestrator0.addCluster(new Cluster(99));
-console.log('...orchestrator setup done');
 
 //setup express middlewares
 app.use(bodyParser.urlencoded({ extended: true }));

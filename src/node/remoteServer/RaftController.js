@@ -81,15 +81,29 @@ let RaftController = (function () {
             return Promise.resolve("ok");
         }
 
-        this.data = (jsonData) => {
+        RaftController.prototype.data = (jsonData) => {
             if (verbose) console.log(`RaftController dataIN on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
             return new Promise((res, rej) => {
+                if (jsonData.data != null) console.log(`jasonData.data.command: ${JSON.stringify(jsonData.data)}`);
                 _raft.emit("data", jsonData, function(data){
                     res(data);
                 }.bind(this));
             });
         }
-        
+
+        RaftController.prototype.service = (jsonData) => {
+            if (verbose) console.log(`RaftController service on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
+            return new Promise((res, rej) => {
+                _raft.command(jsonData).then((success) => {
+                    console.log(`command success: ${success}`);
+                    res(success);
+                }).catch((err) => {
+                    console.log(`command err: ${err}`);
+                    rej(err);
+                });
+            });
+        }
+
         LifeRaft.prototype.initialize = (options) => {
             if (verbose) console.log(`RaftController LifeRaft instance initialized with options: ${JSON.stringify(options)}`);
         }
@@ -119,6 +133,9 @@ let RaftController = (function () {
         })
         _raft.on("data", (data) => {
             if (verbose) console.log(`>RaftController on('data' @ ${_host}:${_port} dead-end data: ${JSON.stringify(data)}`);
+        })
+        _raft.on("commit", (data) => {
+            if (verbose) console.log(`>RaftController on('commit' @ ${_host}:${_port} majority instructed: ${JSON.stringify(data)}`);
         })
     }
     return RaftController;

@@ -5,11 +5,14 @@ const request = require('request');
 
 let Node = (function() {
     let verbose = false;
-    function Node(id, host, port, spawnNewServer = false) {
+    function Node(options) {
+        //options = {id, host, port, capacity, spawnNewServer = false}
         if (verbose) console.log(`>Node instantiate using id: ${id}`);
-        let _id = id.toString();
-        let _host = host.toString();
-        let _port = Number(port);
+        let _id = options.id.toString();
+        let _host = options.host.toString();
+        let _port = Number(options.port);
+        let _capacity = Number(options.capacity);
+        if (options.spawnNewServer == null) options.spawnNewServer = false;
 
         Object.defineProperty(this, "id", {
             get: function() {
@@ -25,11 +28,14 @@ let Node = (function() {
         Object.defineProperty(this, "json", {
             get: function() {
                 return {
-                    "id": _id
+                    "id": _id,
+                    "host": _host,
+                    "port": _port,
+                    "capacity": _capacity
                 };
             }
         });
-        this.join = (address, createInstance) => {
+        Node.prototype.join = (address, createInstance) => {
             console.log(`Node(${this.address}) join ${address}`);
             return new Promise((res, rej) => {
                 request.post(`http://${this.address}/nodes/${address}`, (error, response, body) => {
@@ -42,11 +48,8 @@ let Node = (function() {
                 })
             });
         }
-        /*
-        this.node = function () {
-        */
 
-        if (spawnNewServer) {
+        if (options.spawnNewServer) {
             spawn("node", ["./src/node/remoteServer/server.js", "host", _host, "port", _port], { stdio: "inherit" });
         }
     }
