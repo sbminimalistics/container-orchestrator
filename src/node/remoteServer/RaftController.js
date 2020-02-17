@@ -93,9 +93,9 @@ let RaftController = (function () {
         RaftController.prototype.service = (jsonData) => {
             if (verbose) console.log(`RaftController service on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
             return new Promise((res, rej) => {
-                this._raft.command(jsonData).then((success) => {
-                    console.log(`command success: ${success}`);
-                    res(success);
+                this._raft.command(jsonData).then(() => {
+                    console.log(`service command successfully spread`);
+                    res();
                 }).catch((err) => {
                     if (verbose) console.log(`command err: ${err}`);
                     rej(err);
@@ -116,7 +116,7 @@ let RaftController = (function () {
         });
         
         this._raft.on("heartbeat", (data) => {
-            if (verbose) console.log(`>RaftController ${_host}:${_port} ++++++++++++++++++ heartbeat data: ${data}`);
+            if (verbose) console.log(`>RaftController ${_host}:${_port} heartbeat data: ${data}`);
         })
         this._raft.on("candidate", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} candidate`);
