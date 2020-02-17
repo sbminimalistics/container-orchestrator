@@ -21,7 +21,6 @@ let Node = (function() {
         });
         Object.defineProperty(this, "address", {
             get: function() {
-                //return `${_host.includes("http") ? "" : "http://"}${_host}:${_port}`;
                 return `${this._host}:${this._port}`;
             }
         });
@@ -44,10 +43,6 @@ let Node = (function() {
     NodeInternal.prototype.join = function(targetAddress, createInstance) {
         return new Promise((res, rej) => {
             request.post(`http://${this.address}/nodes/${targetAddress}`, (error, response, body) => {
-                if (verbose) {
-                    console.log("Node error:", error, "statusCode:", response && response.statusCode);
-                    console.log("Node body:", body);
-                }
                 if (error != null) rej(error)
                 else res(body)
             })

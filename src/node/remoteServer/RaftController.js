@@ -84,7 +84,6 @@ let RaftController = (function () {
         RaftController.prototype.data = (jsonData) => {
             if (verbose) console.log(`RaftController dataIN on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
             return new Promise((res, rej) => {
-                //if (jsonData.data != null) console.log(`jasonData.data.command: ${JSON.stringify(jsonData.data)}`);
                 this._raft.emit("data", jsonData, function(data){
                     res(data);
                 }.bind(this));
@@ -98,7 +97,7 @@ let RaftController = (function () {
                     console.log(`command success: ${success}`);
                     res(success);
                 }).catch((err) => {
-                    console.log(`command err: ${err}`);
+                    if (verbose) console.log(`command err: ${err}`);
                     rej(err);
                 });
             });

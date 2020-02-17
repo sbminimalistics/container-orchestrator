@@ -34,4 +34,4 @@ app.use("/", routes(raftController));
 
 //start app listen
 app.listen(port);
-if (verbose === true) console.log(`...Node Server API server started on port: ${port}`);
+if (verbose) console.log(`...Node Server API server started on port: ${port}`);

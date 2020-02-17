@@ -9,7 +9,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', function(req, res) {
-    console.log(`ping ${req.route}`);
     res.end(`cluster`);
 });
 
