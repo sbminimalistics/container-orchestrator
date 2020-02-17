@@ -18,12 +18,12 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-if (verbose === true) console.log(`initialize LifeRaft on ${host}:${port}...`);
+if (verbose) console.log(`initialize LifeRaft on ${host}:${port}...`);
 const RaftController = require("./RaftController");
 const raftController = new RaftController(host, port);
-if (verbose === true) console.log(`...LifeRaft instance created with state: ${raftController.state}`);
+if (verbose) console.log(`...LifeRaft instance created with state: ${raftController.state}`);
 
-if (verbose === true) console.log('create Node Server RESTful endpoints...');
+if (verbose) console.log('create Node Server RESTful endpoints...');
 //setup express middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

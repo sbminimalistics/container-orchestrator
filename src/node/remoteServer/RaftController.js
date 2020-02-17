@@ -68,7 +68,7 @@ let RaftController = (function () {
         
         RaftController.prototype.join = function(url) {
             if (verbose) console.log(`join on host: ${host} port: ${port}  target url: ${url}`);
-            _raft.join(url, (function(u, c){var url2=u; var check = c; return function(packet, callback){
+            this._raft.join(url, (function(u, c){var url2=u; var check = c; return function(packet, callback){
                 if (check(url2) === true) {
                     request.post(`http://${url2}/data`, {json: packet}, (error, response, body) => {
                         if (verbose) console.log("RaftController post return body:", JSON.parse(body));
@@ -84,8 +84,8 @@ let RaftController = (function () {
         RaftController.prototype.data = (jsonData) => {
             if (verbose) console.log(`RaftController dataIN on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
             return new Promise((res, rej) => {
-                if (jsonData.data != null) console.log(`jasonData.data.command: ${JSON.stringify(jsonData.data)}`);
-                _raft.emit("data", jsonData, function(data){
+                //if (jsonData.data != null) console.log(`jasonData.data.command: ${JSON.stringify(jsonData.data)}`);
+                this._raft.emit("data", jsonData, function(data){
                     res(data);
                 }.bind(this));
             });
@@ -94,7 +94,7 @@ let RaftController = (function () {
         RaftController.prototype.service = (jsonData) => {
             if (verbose) console.log(`RaftController service on ${_host}:${_port} data: ${JSON.stringify(jsonData)}`);
             return new Promise((res, rej) => {
-                _raft.command(jsonData).then((success) => {
+                this._raft.command(jsonData).then((success) => {
                     console.log(`command success: ${success}`);
                     res(success);
                 }).catch((err) => {
@@ -108,7 +108,7 @@ let RaftController = (function () {
             if (verbose) console.log(`RaftController LifeRaft instance initialized with options: ${JSON.stringify(options)}`);
         }
         
-        const _raft = new LifeRaft(`${_host}:${_port}`, {
+        this._raft = new LifeRaft(`${_host}:${_port}`, {
             "heartbeat": "1000 millisecond",
             "election min": "2000 millisecond",
             "election max": "6000 millisecond",
@@ -116,25 +116,25 @@ let RaftController = (function () {
             "path": `level_dbs/db_${_port}`
         });
         
-        _raft.on("heartbeat", (data) => {
+        this._raft.on("heartbeat", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} ++++++++++++++++++ heartbeat data: ${data}`);
         })
-        _raft.on("candidate", (data) => {
+        this._raft.on("candidate", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} candidate`);
         })
-        _raft.on("state change", (data) => {
+        this._raft.on("state change", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} state change data: ${data}`);
         })
-        _raft.on("join", (data) => {
+        this._raft.on("join", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} join data: ${data}`);
         })
-        _raft.on("leader change", (data) => {
+        this._raft.on("leader change", (data) => {
             if (verbose) console.log(`>RaftController ${_host}:${_port} leader change data: ${data}`);
         })
-        _raft.on("data", (data) => {
+        this._raft.on("data", (data) => {
             if (verbose) console.log(`>RaftController on('data' @ ${_host}:${_port} dead-end data: ${JSON.stringify(data)}`);
         })
-        _raft.on("commit", (data) => {
+        this._raft.on("commit", (data) => {
             if (verbose) console.log(`>RaftController on('commit' @ ${_host}:${_port} majority instructed: ${JSON.stringify(data)}`);
         })
     }

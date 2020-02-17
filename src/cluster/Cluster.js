@@ -18,7 +18,7 @@ let Cluster = (function () {
             }
             for (let j = 0; j < _nodes.length; j++) {
                 let n1address = _nodes[j].address;
-                if (verbose) console.log(`join ${this._nodes[j].address} on ${this._nodes[i].address}`);
+                if (verbose) console.log(`join ${this._nodes[i].address} on ${this._nodes[j].address}`);
                 if (i != j) {
                     let joinres = _nodes[i].join(_nodes[j].address)
                     .then((data) => {
