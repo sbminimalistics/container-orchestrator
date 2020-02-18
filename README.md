@@ -48,8 +48,7 @@ To kill a connection from the node running on localhost:8004 to the node localho
 curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' localhost:8004/connections/
 ```
 
-# REST endpoints (using http://localhost:8000 as the base URL)
-## Orchestrator endpoints **/**
+## Orchestrator REST endpoints (using localhost:8000 as the base URL)
 * **/clusters**
 
     method : `GET`
@@ -95,8 +94,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' loca
     method: `GET`
 
 
-# REST endpoints on the nodes spawned (using http://localhost:8001 as a base URL)
-### Node endpoints **/**
+### Node REST endpoints on the nodes spawned (using http://localhost:8001 as a base URL)
 * **/**
     Returns a definition of the node
 
