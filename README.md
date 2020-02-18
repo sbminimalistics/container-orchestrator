@@ -9,7 +9,7 @@ This container orchestrator written in pure JavaScript (solely built for NodeJS 
 - [x] implement mechanism that allows to cut specific node-to-node connections
 - [x] handle event of elected leader, forward it to a cluster
 - [x] spread /service endpoint command using the reference to the leader elected
-- [ ] employ sophisticated way of creating replicas inside the node based on their current load
+- [ ] employ sophisticated way of creating replicas inside the nodes based on their current load
 - [ ] cover the case when two nodes from the same cluster report themselves as leader
 - [ ] build a queue of service calls (only one service call on one leader at a time)
 - [ ] expose log entries through node stats
@@ -60,7 +60,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' loca
 
     URL param: `cluster_id=[alphanumeric]`
 
-    - [] implement `PUT` | `DELETE`
+    - [ ] implement `PUT` | `DELETE`
 
 ## Cluster endpoints **/clusters/:cluster_id/**
 * **/service**
