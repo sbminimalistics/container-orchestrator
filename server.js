@@ -26,9 +26,14 @@ orchestrator0.addCluster(
 );
 console.log('...orchestrator setup done');
 
-//for the time being only one cluster is used;
-//orchestrator0.addCluster(new Cluster(1));
-//orchestrator0.addCluster(new Cluster(99));
+orchestrator0.addCluster(
+    new Cluster(
+        1, //cluster id
+        new Node({"id": "node_10", "host": defaultNodeHost, "port": 8011, "capacity": 100, "spawnNewServer": true}), //new node on localhost:8011
+        new Node({"id": "node_11", "host": defaultNodeHost, "port": 8012, "capacity": 100, "spawnNewServer": true}), //on localhost:8012
+        new Node({"id": "node_12", "host": defaultNodeHost, "port": 8013, "capacity": 100, "spawnNewServer": true}) //on localhost:8013
+    )
+);
 
 //setup express middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
