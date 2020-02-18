@@ -1,6 +1,6 @@
 # Container Orchestrator
 
-This container orchestrator written in pure JavaScript (solely built for NodeJS environment) that mimics the idea of Swarm or Kubernetes running on Docker. By simply installing the dependencies and running `npm run start` some predefined set of clusters and their nodes is created. Starting from which, using the RESTful endpoints given beneath, further control is possible. In this initial setup only one instance of cluster is created, although multiple clusters is supported.
+This container orchestrator written in pure JavaScript (solely built for NodeJS environment) that mimics the idea of Swarm or Kubernetes running on Docker. By simply installing npm dependencies and running `npm run start` some predefined cluster and it's nodes are created. Starting from which, using the RESTful endpoints given beneath, further control is possible. In this initial setup only one instance of cluster is created, although multiple clusters is supported.
 
 # Task list
 - [x] create boilerplate of RESTful api
