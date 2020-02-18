@@ -9,17 +9,17 @@ This container orchestrator written in pure JavaScript (solely built for NodeJS 
 - [x] implement mechanism that allows to cut specific node-to-node connections
 - [x] handle event of elected leader, forward it to a cluster
 - [x] spread /service endpoint command using the reference to the leader elected
-- [] employ sophisticated way of creating replicas inside the node based on their current load
-- [] cover the case when two nodes from the same cluster report themselves as leader
-- [] build a queue of service calls (only one service call on one leader at a time)
-- [] expose log entries through node stats
-- [] think of nested clusters (container as a cluster)
+- [ ] employ sophisticated way of creating replicas inside the node based on their current load
+- [ ] cover the case when two nodes from the same cluster report themselves as leader
+- [ ] build a queue of service calls (only one service call on one leader at a time)
+- [ ] expose log entries through node stats
+- [ ] think of nested clusters (container as a cluster)
 
 ## Development environment
 
 Project is developed on Windows machine.
-* npm 6.7.0
-* node v10.15.1 (also tested on v13.8.0)
+* npm 6.7.0 (also tested 6.10.1)
+* node v10.15.1 (also tested v13.8.0)
 
 ### Setup
 
@@ -34,7 +34,7 @@ npm run start
 adjust PORT value inside .env file to change dev server port
 
 ## Key endpoint calls
-* these requests should be called after a leader is elected (takes 2-5 seconds after start)
+! these requests should be called after a leader is elected (takes 2-5 seconds after start)
 To get stats of a cluster id:0 (only cluster id:0 exists with this basic setup):
 ```
 curl localhost:8000/clusters/0/stats
@@ -43,24 +43,31 @@ To send a service request using a leader of the cluster:
 ```
 curl -X POST -H "Content-Type: application/json" -d '{"container": {"id": 5, "replicas": 25}}' localhost:8000/clusters/0/service
 ```
+To kill a connection from the node running on localhost:8004 to the node localhost:8002 :
+```
+curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' localhost:8004/connections/
+```
 
-# RESTful endpoints
-## Orchestrator endpoints **<host>/**
+# REST endpoints (using http://localhost:8000 as the base URL)
+## Orchestrator endpoints **/**
 * **/clusters**
 
     method : `GET`
 * **/clusters/:cluster_id**
+    Returns stats of the nodes running in the cluster.
 
-    method: `GET` | `PUT` | `DELETE`
+    method: `GET`
 
     URL param: `cluster_id=[alphanumeric]`
 
-## Cluster endpoints **<host>/clusters/:cluster_id/**
+    - [] implement `PUT` | `DELETE`
+
+## Cluster endpoints **/clusters/:cluster_id/**
 * **/service**
 
     method: `POST`
 
-    content:
+    JSON content:
 
     ```
     {
@@ -79,8 +86,28 @@ curl -X POST -H "Content-Type: application/json" -d '{"container": {"id": 5, "re
 * **/state**
 
     method: `GET`
+
+    - [] implement state of the last service call
+
 * **/stats**
+    Returns stats of the nodes running in the cluster.
 
     method: `GET`
 
-Quick example for sending sending json using cURL: curl -i -X POST -H "Content-Type: application/json" -d '{"key":"val"}' http://localhost:8000/clusters/0/connections
+
+# REST endpoints on the nodes spawned (using http://localhost:8001 as a base URL)
+### Node endpoints **/**
+* **/**
+    Returns a definition of the node
+
+    method: `GET`
+
+* **/connections**
+    Returns the connections available for the node
+
+    method: `GET`
+
+* **/stats**
+    Returns the stats of the given node
+
+    method: `GET`
