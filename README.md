@@ -94,7 +94,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' loca
     method: `GET`
 
 
-### Node REST endpoints on the nodes spawned (using http://localhost:8001 as a base URL)
+### Node REST endpoints on the nodes spawned (using localhost:8001 as a base URL)
 * **/**
     Returns a definition of the node
 
