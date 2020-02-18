@@ -26,6 +26,8 @@ orchestrator0.addCluster(
 );
 console.log('...orchestrator setup done');
 
+//number of clusters running in parallel is supported; disabling for the sake of simplicity.
+/*
 orchestrator0.addCluster(
     new Cluster(
         1, //cluster id
@@ -34,6 +36,7 @@ orchestrator0.addCluster(
         new Node({"id": "node_12", "host": defaultNodeHost, "port": 8013, "capacity": 100, "spawnNewServer": true, "clusterURL": "http://localhost:8000/clusters/1"}) //on localhost:8013
     )
 );
+*/
 
 //setup express middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
