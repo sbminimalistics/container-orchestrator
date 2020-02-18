@@ -10,8 +10,8 @@ let Node = (function() {
         if (verbose) console.log(`>Node instantiate using id: ${options.id}`);
         this._id = options.id.toString();
         this._host = options.host.toString();
+        this._clusterURL = options.clusterURL.toString();
         this._port = Number(options.port);
-        this._capacity = Number(options.capacity);
         if (options.spawnNewServer == null) options.spawnNewServer = false;
 
         Object.defineProperty(this, "id", {
@@ -26,17 +26,17 @@ let Node = (function() {
         });
         Object.defineProperty(this, "json", {
             get: function() {
-                return {
-                    "id": this._id,
-                    "host": this._host,
-                    "port": this._port,
-                    "capacity": this._capacity
-                };
+                return new Promise((res, rej) => {
+                    request.get(`http://${this.address}/stats`, (error, response, body) => {
+                        if (error != null) res({"address": this.address, "accessile": false, "stats": error})
+                        else res({"address": this.address, "accessible": true, "stats": JSON.parse(body)})
+                    })
+                });
             }
         });
 
         if (options.spawnNewServer) {
-            spawn("node", ["./src/node/remoteServer/server.js", "host", this._host, "port", this._port], { stdio: "inherit" });
+            spawn("node", ["./src/node/remoteServer/server.js", "host", this._host, "port", this._port, "clusterURL", this._clusterURL], { stdio: "inherit" });
         }
     }
 

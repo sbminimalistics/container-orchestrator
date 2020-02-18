@@ -1,7 +1,7 @@
 'use strict';
 
 const args = process.argv.slice(2);
-let host, port;
+let host, port, clusterURL;
 if (args.indexOf("host") > -1) {
     host = args[args.indexOf("host") + 1];
 } else {
@@ -12,6 +12,9 @@ if (args.indexOf("port") > -1) {
 } else {
     throw(new Error(`given port: ${port} is not valid; node serve must run on uniq port`));
 }
+if (args.indexOf("clusterURL") > -1) {
+    clusterURL = args[args.indexOf("clusterURL") + 1];
+}
 
 const verbose = false;
 const express = require('express');
@@ -20,7 +23,7 @@ const bodyParser = require('body-parser');
 
 if (verbose) console.log(`initialize LifeRaft on ${host}:${port}...`);
 const RaftController = require("./RaftController");
-const raftController = new RaftController(host, port);
+const raftController = new RaftController(host, port, clusterURL);
 if (verbose) console.log(`...LifeRaft instance created with state: ${raftController.state}`);
 
 if (verbose) console.log('create Node Server RESTful endpoints...');

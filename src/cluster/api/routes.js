@@ -4,10 +4,16 @@ const express = require('express');
 const verbose = true;
 const router = express.Router({mergeParams: true});
 
+router.route("/leader").post((req, res) => {
+    if (verbose) console.log(`cluster router '/leader' post`);
+    req.cluster.leader = req.body;
+});
 router.route("/service").post((req, res) => {
     if (verbose) console.log(`cluster router '/service' post`);
     req.cluster.callForService(req.body);
-    res.json(req.cluster);
+    req.cluster.json.then((data) => {
+        res.json(data);
+    });
 }).get((req, res) => {
     if (verbose) console.log(`cluster router '/service' get ..return the last service`);
     res.json(req.cluster.lastServiceCall);
@@ -18,7 +24,9 @@ router.route("/state").get((req, res) => {
 });
 router.route("/stats").get((req, res) => {
     if (verbose) console.log(`cluster router '/stats'`);
-    res.json(req.cluster.json);
+    req.cluster.json.then((data) => {
+        res.json(data);
+    });
 });
 router.route("/connections").get((req, res) => {
     if (verbose) console.log(`cluster router '/connections'`);

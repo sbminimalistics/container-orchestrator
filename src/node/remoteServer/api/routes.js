@@ -56,9 +56,9 @@ const nodeRouter = (controller) => {
         });
     });
 
-    router.route("/status").get((req, res) => {
+    router.route("/stats").get((req, res) => {
         if (verbose) console.log(`remote server router '/status'`);
-        res.status(200).send("status");
+        res.status(200).json(controller.json);
     });
 
     router.use((req, res, next) => {
