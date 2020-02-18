@@ -20,7 +20,9 @@ router.route("/service").post((req, res) => {
 });
 router.route("/state").get((req, res) => {
     if (verbose) console.log(`cluster router '/state'`);
-    res.json(req.cluster);
+    req.cluster.json.then((data) => {
+        res.json(data);
+    });
 });
 router.route("/stats").get((req, res) => {
     if (verbose) console.log(`cluster router '/stats'`);
@@ -37,9 +39,11 @@ router.route("/connections").get((req, res) => {
     res.json(req.cluster.connections);
 });
 router.use((req, res, next) => {
-    if (verbose) console.log(`cluster 'not found'`);
+    if (verbose) console.log(`such endpoint is not defined; fallback to default`);
     if (req.cluster != null) {
-        res.json(req.cluster.json);
+        req.cluster.json.then((data) => {
+            res.json(data);
+        });
     } else {
         res.status(500).send("not found!");
     }
