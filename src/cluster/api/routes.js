@@ -10,10 +10,7 @@ router.route("/leader").post((req, res) => {
 });
 router.route("/service").post((req, res) => {
     if (verbose) console.log(`cluster router '/service' post`);
-    req.cluster.callForService(req.body);
-    req.cluster.json.then((data) => {
-        res.json(data);
-    });
+    res.json(req.cluster.callForService(req.body));
 }).get((req, res) => {
     if (verbose) console.log(`cluster router '/service' get ..return the last service`);
     res.json(req.cluster.lastServiceCall);

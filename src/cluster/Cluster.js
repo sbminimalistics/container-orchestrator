@@ -10,7 +10,9 @@ let Cluster = (function () {
         this._id = id.toString();
         this._nodes = nodes;
         this._connections = {};
-        this._lastServiceCall = {};
+        this._pendingServices = [];
+        this._serviceInSpread;
+        this._spreadServices = [];
         this._leader; //{id: string, address: string}
 
         //make initial connections between nodes and populate _connections matrix;
@@ -80,24 +82,56 @@ let Cluster = (function () {
     Cluster.prototype = {
         get lastServiceCall() {
             console.log(`lastServiceCall: ${JSON.stringify(this._lastServiceCall)}`);
-            return this._lastServiceCall;
+            return this._pendingServices.length > 0 ? this._services[0] : {};
         }
     }
 
-    Cluster.prototype.callForService = function (data) {
-        if (verbose) console.log(`>Cluster.callForService req data: ${JSON.stringify(data)} leader: ${JSON.stringify(this._leader)}`);
-        this._lastServiceCall = data;
-        if (this._leader != null) {
-            request.post(`http://${this._leader.host}:${this._leader.port}/service`, {json: data}, (error, response, body) => {
-                if (verbose) console.log(`>Cluster.callForService forwarded to http://${this._leader.host}:${this._leader.port}/service returned body: ${body}`);
-            });
+    Cluster.prototype.callForService = function (serviceData) {
+        if (verbose) console.log(`>Cluster.callForService req data: ${JSON.stringify(serviceData)} leader: ${JSON.stringify(this._leader)}`);
+        if (!this.checkIfServiceForTheSameContainerExists(serviceData)) {
+            serviceData.status = Cluster.serviceStates.PENDING;
+            this._pendingServices.unshift(serviceData);
         }
+        if (this._leader != null) {
+            this.executeNextService();
+        }
+        console.log(`serviceData after callForService: ${JSON.stringify(serviceData)}`);
+        return serviceData;
     };
+
+    Cluster.prototype.checkIfServiceForTheSameContainerExists = function (serviceData) {
+        if (verbose) console.log(`>Cluster.checkIfServiceForTheSameContainerExists req data: ${JSON.stringify(serviceData)}`);
+        for (var i = 0; i < this._pendingServices.length; i++) {
+            if (this._pendingServices[i].container.uniq_id == serviceData.container.uniq_id) {
+                this._pendingServices[i] == serviceData;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Cluster.prototype.executeNextService = function () {
+        //stop proceeding if there is a service already in execution;
+        if (this._serviceInSpread != null) return false;
+
+        this._serviceInSpread = this._pendingServices.pop();
+        this._serviceInSpread.status = Cluster.serviceStates.SPREADING;
+        request.post(`http://${this._leader.host}:${this._leader.port}/service`, {json: this._serviceInSpread}, (error, response, body) => {
+            if (verbose) console.log(`>Cluster.callForService forwarded to http://${this._leader.host}:${this._leader.port}/service returned body: ${body}`);
+        });
+    }
 
     Cluster.prototype.addNode = function (data) {
         if (verbose) console.log(`>Cluster.addNodes req data: ${JSON.stringify(data)}`);
         //TO-DO: implement functionality that allows to add a new node and join it to already existing ones.
     };
+
+    Cluster.serviceStates = {
+        PENDING: "execution pending",
+        SPREADING: "spreading",
+        SENT_FOR_EXCECUTION: "executing",
+        EXECUTED: "executed",
+    }
 
     return Cluster;
 })();

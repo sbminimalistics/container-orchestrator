@@ -34,15 +34,17 @@ npm run start
 adjust PORT value inside .env file to change dev server port
 
 ## Key endpoint calls
-! these requests should be called after a leader is elected (takes 2-5 seconds after start)
+
+To send a service request to the cluster:
+```
+curl -X POST -H "Content-Type: application/json" -d '{container: {uniq_id: 0, label: "description"}, replicas: 99}}' localhost:8000/clusters/0/service
+```
+
 To get stats of a cluster id:0 (only cluster id:0 exists with this basic setup):
 ```
 curl localhost:8000/clusters/0/stats
 ```
-To send a service request using a leader of the cluster:
-```
-curl -X POST -H "Content-Type: application/json" -d '{"container": {"id": 5, "replicas": 25}}' localhost:8000/clusters/0/service
-```
+
 To kill a connection from the node running on localhost:8004 to the node localhost:8002 :
 ```
 curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' localhost:8004/connections/
