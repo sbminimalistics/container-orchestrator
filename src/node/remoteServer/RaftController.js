@@ -7,14 +7,15 @@ const objMap = require("../../utils/obj-update");
 
 let RaftController = (function () {
     const verbose = false;
-    
+
     function RaftController(host, port, clusterURL) {
         if (verbose) console.log(`>RaftController instantiate using host: ${host} port: ${port} clusterURL: ${clusterURL}`);
         this._host = host.toString();
         this._port = Number(port);
         this._clusterURL = clusterURL;
         this._connections = {};
-        
+        this._servicePromiseResolve = this._servicePromiseReject = null;
+
         this._raft = new LifeRaft(`${this._host}:${this._port}`, {
             "heartbeat": "1000 millisecond",
             "election min": "2000 millisecond",
@@ -22,7 +23,7 @@ let RaftController = (function () {
             "Log": Log,
             "path": `level_dbs/db_${this._port}`
         });
-        
+
         this._raft.on("heartbeat", (data) => {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} heartbeat data: ${data}`);
         });
@@ -49,6 +50,18 @@ let RaftController = (function () {
         });
         this._raft.on("commit", (data) => {
             if (verbose) console.log(`>RaftController on('commit' @ ${this._host}:${this._port} majority instructed: ${JSON.stringify(data)}`);
+            //We wait for the LEADER to fire 'commit'.
+            if (this._raft.state === 1) {
+                if (this._servicePromiseResolve != null) {
+                    this._servicePromiseResolve({status: "ok"});
+                    this.clearServicePromiseReferences();
+                }
+            } else {
+                if (this._servicePromiseReject != null) {
+                    this._servicePromiseReject({status: "fail; not any more the leader"});
+                    this.clearServicePromiseReferences();
+                }
+            }
         });
     }
 
@@ -85,6 +98,10 @@ let RaftController = (function () {
         }
     }
 
+    RaftController.prototype.clearServicePromiseReferences = function (url) {
+        this._servicePromiseResolve = this._servicePromiseReject = null;
+    }
+
     RaftController.prototype.checkConnection = function (url) {
         if (this._connections[url] === 1) {
             return true;
@@ -93,7 +110,7 @@ let RaftController = (function () {
         }
     }
 
-    RaftController.prototype.join = function(url) {
+    RaftController.prototype.join = function (url) {
         if (verbose) console.log(`join on host: ${this._host} port: ${this._port}  target url: ${this._url}`);
         this._raft.join(url, (function(u, c){var url2=u; var check = c; return function(packet, callback){
             if (check(url2) === true) {
@@ -123,7 +140,8 @@ let RaftController = (function () {
             this._raft.command(jsonData).then(() => {
                 console.log(`service command successfully spread`);
                 //TO-DO: implement mechanism that allows to control follower nodes based on their current load;
-                res();
+                this._servicePromiseResolve = res;
+                this._servicePromiseReject = rej;
             }).catch((err) => {
                 if (verbose) console.log(`command err: ${err}`);
                 rej(err);

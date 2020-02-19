@@ -50,7 +50,7 @@ const nodeRouter = (controller) => {
         if (verbose) console.log(`remote server router '/service' data: ${JSON.stringify(req.body)}`);
         controller.service(req.body).then((data) => {
             if (verbose) console.log(`router '/data' return to ${req.body.address} data: ${JSON.stringify(data)}`);
-            res.json(controller.json);
+            res.json(data);
         }).catch((err) => {
             res.status(500).send(err);
         });

@@ -18,6 +18,7 @@
         "dotenv": "^8.2.0",
         "express": "^4.16.2",
         "liferaft": "git+https://github.com/sbminimalistics/liferaft.git",
-        "request": "^2.88.0"
+        "request": "^2.88.0",
+        "uuid": "^3.4.0"
     }
 }
