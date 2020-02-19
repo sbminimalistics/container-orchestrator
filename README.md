@@ -11,7 +11,7 @@ This container orchestrator written in pure JavaScript (solely built for NodeJS 
 - [x] spread /service endpoint command using the reference to the leader elected
 - [ ] employ sophisticated way of creating replicas inside the nodes based on their current load
 - [ ] cover the case when two nodes from the same cluster report themselves as leader
-- [ ] build a queue of service calls (only one service call on one leader at a time)
+- [x] build a queue of service calls (only one service call on one leader at a time)
 - [ ] expose log entries through node stats
 - [ ] think of nested clusters (container as a cluster)
 
