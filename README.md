@@ -37,7 +37,7 @@ adjust PORT value inside .env file to change dev server port
 
 To send a service request to the cluster:
 ```
-curl -X POST -H "Content-Type: application/json" -d '{container: {uniq_id: 0, label: "description"}, replicas: 99}}' localhost:8000/clusters/0/service
+curl -X POST -H "Content-Type: application/json" -d '{"container": {"uniq_id": 0, "label": "description"}, "replicas": 99}' localhost:8000/clusters/0/service
 ```
 
 To get stats of a cluster id:0 (only cluster id:0 exists with this basic setup):
