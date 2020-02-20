@@ -150,6 +150,7 @@ let Cluster = (function () {
             } else if (response != null) {
                 console.log(`service successfully sent to the LEADER of this cluster; response body: ${JSON.stringify(body)}`);
             }
+            this._serviceInSpread.status = Cluster.serviceStates.EXECUTED;
             this._spreadServices.push(this._serviceInSpread);
             this._serviceInSpread = null;
             if (verbose) console.log(`>Cluster.callForService forwarded to http://${this._leader.host}:${this._leader.port}/service returned body: ${body}`);
@@ -164,7 +165,6 @@ let Cluster = (function () {
     Cluster.serviceStates = {
         PENDING: "spreading pending",
         SPREADING: "spreading",
-        SENT_FOR_EXCECUTION: "executing",
         EXECUTED: "executed",
     }
 
