@@ -3,6 +3,7 @@
 let Cluster = (function () {
     const verbose = false;
     const request = require('request');
+    const Node = require('../node/Node');
     const objMap = require("../utils/obj-update");
     /*
         https://www.npmjs.com/package/uuid is a dependency that generates
@@ -33,7 +34,7 @@ let Cluster = (function () {
                 let n1address = this._nodes[j].address;
                 if (verbose) console.log(`join ${this._nodes[i].address} on ${this._nodes[j].address}`);
                 if (i != j) {
-                    let joinres = this._nodes[i].join(this._nodes[j].address)
+                    this._nodes[i].join(n1address)
                     .then((data) => {
                         this._connections[n0address][n1address] = 1;
                     })
@@ -158,8 +159,32 @@ let Cluster = (function () {
     }
 
     Cluster.prototype.addNode = function (data) {
-        if (verbose) console.log(`>Cluster.addNodes req data: ${JSON.stringify(data)}`);
-        //TO-DO: implement functionality that allows to add a new node and join it to already existing ones.
+        if (verbose) console.log(`>Cluster.addNode req data: ${JSON.stringify(data)}`);
+        return new Promise((res, rej) => {
+            var node = new Node({"id": data.id, "host": data.host, "port": data.port, "capacity": data.capacity, "spawnNewServer": data.spawn, "clusterURL": `http://localhost:8000/clusters/${this._id}`});
+            if (this._connections[node.address] == null) {
+                this._connections[node.address] = {};
+            }
+            for (let i = 0; i < this._nodes.length; i++) {
+                if (verbose) console.log(`join ${this._nodes[i].address} on ${this._nodes[j].address}`);
+                    this._nodes[i].join(node.address)
+                    .then((data) => {
+                        this._connections[this._nodes[i].address][node.address] = 1;
+                    })
+                    .catch((err) => {
+                        this._connections[this._nodes[i].address][node.address] = 0;
+                    });
+                    node.join(this._nodes[i].address)
+                    .then((data) => {
+                        this._connections[node.address][this._nodes[i].address] = 1;
+                    })
+                    .catch((err) => {
+                        this._connections[node.address][this._nodes[i].address] = 0;
+                    });
+            }
+            //TO-DO: impelment Promise.all for waiting .join to complete
+            res({"status": "ok"});
+        });
     };
 
     Cluster.serviceStates = {

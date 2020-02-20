@@ -4,6 +4,12 @@ const express = require('express');
 const verbose = true;
 const router = express.Router({mergeParams: true});
 
+router.route("/nodes").post((req, res) => {
+    if (verbose) console.log(`cluster router '/nodes' post`);
+    req.cluster.addNode(req.body).then((data) => {
+        res.json(data);
+    });
+});
 router.route("/leader").post((req, res) => {
     if (verbose) console.log(`cluster router '/leader' post`);
     req.cluster.leader = req.body;

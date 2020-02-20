@@ -9,6 +9,7 @@ This container orchestrator written in pure JavaScript (solely built for NodeJS 
 - [x] implement mechanism that allows to cut specific node-to-node connections
 - [x] handle event of elected leader, forward it to a cluster
 - [x] spread /service endpoint command using the reference to the leader elected
+- [x] implement <cluster>/nodes POST enpoint that allows to add new node
 - [ ] employ sophisticated way of creating replicas inside the nodes based on their current load
 - [ ] cover the case when two nodes from the same cluster report themselves as leader
 - [x] build a queue of service calls (only one service call on one leader at a time)
@@ -43,6 +44,11 @@ curl -X POST -H "Content-Type: application/json" -d '{"container": {"uniq_id": 0
 To get stats of a cluster id:0 (only cluster id:0 exists with this basic setup):
 ```
 curl localhost:8000/clusters/0/stats
+```
+
+To spawn and connect a new node localhost:8009 into cluster id 0:
+```
+curl -X POST -H "Content-Type: application/json" -d '{"id": "custom0", "host":"localhost", "port":8099, "capacity":100, "spawn":true}' localhost:8000/clusters/0/nodes
 ```
 
 To kill a connection from the node running on localhost:8004 to the node localhost:8002 :
