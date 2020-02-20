@@ -8,11 +8,12 @@ const objMap = require("../../utils/obj-update");
 let RaftController = (function () {
     const verbose = false;
 
-    function RaftController(host, port, clusterURL) {
+    function RaftController(host, port, clusterURL, capacity) {
         if (verbose) console.log(`>RaftController instantiate using host: ${host} port: ${port} clusterURL: ${clusterURL}`);
         this._host = host.toString();
         this._port = Number(port);
         this._clusterURL = clusterURL;
+        this._capacity = capacity;
         this._connections = {};
         this._servicePromiseResolve = this._servicePromiseReject = null;
 
@@ -50,6 +51,10 @@ let RaftController = (function () {
         });
         this._raft.on("commit", (data) => {
             if (verbose) console.log(`>RaftController on('commit' @ ${this._host}:${this._port} majority instructed: ${JSON.stringify(data)}`);
+            this._raft.log.getLastEntry().then((data)=>{
+                if (verbose) console.log(`initialized on host: ${this._host} getLastEntry data: ${JSON.stringify(data)}`);
+            });
+
             //We wait for the LEADER to fire 'commit'.
             if (this._raft.state === 1) {
                 if (this._servicePromiseResolve != null) {
@@ -163,7 +168,10 @@ let RaftController = (function () {
 
     LifeRaft.prototype.initialize = function (options) {
         if (verbose) console.log(`RaftController LifeRaft instance initialized with options: ${JSON.stringify(options)}`);
-    }
+        this.log.getLastEntry().then((data)=>{
+            if (verbose) console.log(`last raft log entry data: ${JSON.stringify(data)}`);
+        });
+    };
 
     return RaftController;
 })();

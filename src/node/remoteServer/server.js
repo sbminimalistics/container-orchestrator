@@ -1,7 +1,7 @@
 'use strict';
 
 const args = process.argv.slice(2);
-let host, port, clusterURL;
+let host, port, clusterURL, capacity;
 if (args.indexOf("host") > -1) {
     host = args[args.indexOf("host") + 1];
 } else {
@@ -15,6 +15,9 @@ if (args.indexOf("port") > -1) {
 if (args.indexOf("clusterURL") > -1) {
     clusterURL = args[args.indexOf("clusterURL") + 1];
 }
+if (args.indexOf("capacity") > -1) {
+    capacity = args[args.indexOf("capacity") + 1];
+}
 
 const verbose = false;
 const express = require('express');
@@ -23,7 +26,7 @@ const bodyParser = require('body-parser');
 
 if (verbose) console.log(`initialize LifeRaft on ${host}:${port}...`);
 const RaftController = require("./RaftController");
-const raftController = new RaftController(host, port, clusterURL);
+const raftController = new RaftController(host, port, clusterURL, capacity);
 if (verbose) console.log(`...LifeRaft instance created with state: ${raftController.state}`);
 
 if (verbose) console.log('create Node Server RESTful endpoints...');

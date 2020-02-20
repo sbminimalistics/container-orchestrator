@@ -12,6 +12,7 @@ let Node = (function() {
         this._host = options.host.toString();
         this._clusterURL = options.clusterURL.toString();
         this._port = Number(options.port);
+        this._capacity = Number(options.capacity);
         if (options.spawnNewServer == null) options.spawnNewServer = false;
 
         Object.defineProperty(this, "id", {
@@ -36,7 +37,7 @@ let Node = (function() {
         });
 
         if (options.spawnNewServer) {
-            spawn("node", ["./src/node/remoteServer/server.js", "host", this._host, "port", this._port, "clusterURL", this._clusterURL], { stdio: "inherit" });
+            spawn("node", ["./src/node/remoteServer/server.js", "host", this._host, "port", this._port, "clusterURL", this._clusterURL, "capacity", this._capacity], { stdio: "inherit" });
         }
     }
 
