@@ -69,11 +69,18 @@ const nodeRouter = (controller) => {
         res.status(200).json(controller.json);
     });
 
+    router.route("/nodes/count").get((req, res) => {
+        if (verbose) console.log(`remote server router '/status2'`);
+        controller.getNodesCount(req.body).then((data) => {
+            res.json({"count": data});
+        });
+    });
+
     router.route("/rpc").post((req, res) => {
         if (verbose) console.log(`remote server router '/rpc'`);
         controller.rpc(req.body).then((data) => {
             console.log(`then on node router`);
-            res.status(200).json(data);
+            res.json(data);
         });
     });
 

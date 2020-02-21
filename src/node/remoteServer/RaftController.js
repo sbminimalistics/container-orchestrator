@@ -37,6 +37,12 @@ let RaftController = (function () {
         this._raft.on("join", (data) => {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} join data: ${data}`);
         });
+        this._raft.on("leave", (data) => {
+            if (verbose) console.log(`>RaftController ${this._host}:${this._port} leave data: ${JSON.stringify(data)}`);
+            this.redistributeLoad().then((data) => {
+                console.log(`load redistribution success on ${this._host}:${this._port}`);
+            }).catch((err) => {});
+        });
         this._raft.on("leader change", (data) => {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} leader change data: ${data}`);
         });
@@ -45,6 +51,9 @@ let RaftController = (function () {
             request.post(`${this._clusterURL}/leader`, {json: {host: this._host, port: this._port}}, (error, response, body) => {
                 if (verbose) console.log("RaftController leader post return body:", body);
             });
+            this.redistributeLoad().then((data) => {
+                console.log(`load redistribution success on ${this._host}:${this._port}`);
+            }).catch((err) => {});
         });
         this._raft.on("data", (data) => {
             if (verbose) console.log(`>RaftController on('data' @ ${this._host}:${this._port} dead-end data: ${JSON.stringify(data)}`);
@@ -159,6 +168,15 @@ let RaftController = (function () {
         });
     }
 
+    RaftController.prototype.redistributeLoad = function () {
+        if (this._raft.state !== 1) return Promise.reject("redistributeLoad canceled; not a leader");
+        console.log(`RaftController redistributeLoad invoked on the leader running at: ${this._host}:${this._port}`);
+        return new Promise((res, rej) => {
+            //TO-DO: implement mechanism that re-calculates how many replicas to deploy on each node connected;
+            res("ok");
+        });
+    }
+
     RaftController.prototype.rpc = function (jsonData) {
         return new Promise((res, rej) => {
             this._raft.packet("rpc", jsonData).then((packet) => {
@@ -168,6 +186,20 @@ let RaftController = (function () {
                 //this rpc call (packet type 'exec') might be used to invoke some commands without waiting acknowledgement;
                 res({"status": "rpc ok!"});
             })
+        });
+    }
+
+    RaftController.prototype.getDeployed = function (jsonData) {
+        return new Promise((res, rej) => {
+            this._raft.log.getLastEntry().then((data)=>{
+                res(data);
+            });
+        });
+    }
+
+    RaftController.prototype.getNodesCount = function (data) {
+        return new Promise((res, rej) => {
+            res(this._raft.nodes.length);
         });
     }
 
