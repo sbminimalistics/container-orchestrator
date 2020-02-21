@@ -81,22 +81,16 @@ let Cluster = (function () {
             this.executeNextService();
         },
         get lastServiceCall() {
-            console.log(`lastServiceCall: ${JSON.stringify(this._lastServiceCall)}`);
-            return this._pendingServices.length > 0 ? this._services[0] : {};
+            return this._pendingServices.length > 0 ?
+                    this._pendingServices[0] :
+                    (
+                        this._serviceInSpread != null ?
+                        this._serviceInSpread :
+                        this._spreadServices[this._spreadServices.length - 1]
+                    );
         }
     }
 
-    /*
-        CallForService is invoked from REST router's /service POST endpoint.
-        ServiceData is a json object with the following structure:
-        {
-            "container": {
-                "uniq_id": 0,
-                "label": "modified description"
-            },
-            "replicas": 99
-        }
-    */
     Cluster.prototype.callForService = function (serviceData) {
         if (verbose) console.log(`>Cluster.callForService req data: ${JSON.stringify(serviceData)} leader: ${JSON.stringify(this._leader)}`);
         var targetService = this.checkIfServiceForTheSameContainerExists(serviceData);
@@ -147,9 +141,11 @@ let Cluster = (function () {
         this._serviceInSpread.status = Cluster.serviceStates.SPREADING;
         request.post(`http://${this._leader.host}:${this._leader.port}/service`, {json: this._serviceInSpread}, (error, response, body) => {
             if (error) {
-                console.log(`reattempt the same service call`);
+                console.log(`errorous state; reattempt the same service call`);
+                this._serviceInSpread.log_index = null;
             } else if (response != null) {
                 console.log(`service successfully sent to the LEADER of this cluster; response body: ${JSON.stringify(body)}`);
+                this._serviceInSpread.log_index = body.log_index;
             }
             this._serviceInSpread.status = Cluster.serviceStates.EXECUTED;
             this._spreadServices.push(this._serviceInSpread);

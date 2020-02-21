@@ -51,22 +51,21 @@ let RaftController = (function () {
         });
         this._raft.on("commit", (data) => {
             if (verbose) console.log(`>RaftController on('commit' @ ${this._host}:${this._port} majority instructed: ${JSON.stringify(data)}`);
-            this._raft.log.getLastEntry().then((data)=>{
-                if (verbose) console.log(`initialized on host: ${this._host} getLastEntry data: ${JSON.stringify(data)}`);
+            this._raft.log.getLastInfo().then((data)=>{
+                if (verbose) console.log(`last message in the log on host: ${this._host} getLastEntry data: ${JSON.stringify(data)}`);
+                //We wait for the LEADER to fire 'commit'.
+                if (this._raft.state === 1) {
+                    if (this._servicePromiseResolve != null) {
+                        this._servicePromiseResolve({status: "ok", log_index: data.index});
+                        this.clearServicePromiseReferences();
+                    }
+                } else {
+                    if (this._servicePromiseReject != null) {
+                        this._servicePromiseReject({status: "fail; not any more the leader"});
+                        this.clearServicePromiseReferences();
+                    }
+                }
             });
-
-            //We wait for the LEADER to fire 'commit'.
-            if (this._raft.state === 1) {
-                if (this._servicePromiseResolve != null) {
-                    this._servicePromiseResolve({status: "ok"});
-                    this.clearServicePromiseReferences();
-                }
-            } else {
-                if (this._servicePromiseReject != null) {
-                    this._servicePromiseReject({status: "fail; not any more the leader"});
-                    this.clearServicePromiseReferences();
-                }
-            }
         });
     }
 
@@ -150,7 +149,6 @@ let RaftController = (function () {
         if (verbose) console.log(`RaftController service on ${this._host}:${this._port} data: ${JSON.stringify(jsonData)}`);
         return new Promise((res, rej) => {
             this._raft.command(jsonData).then(() => {
-                console.log(`service command successfully spread`);
                 //TO-DO: implement mechanism that allows to control follower nodes based on their current load;
                 this._servicePromiseResolve = res;
                 this._servicePromiseReject = rej;
