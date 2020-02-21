@@ -22,6 +22,7 @@ This container orchestrator written in pure JavaScript (solely built for NodeJS 
 Project is developed on Windows machine.
 * npm 6.7.0 (also tested 6.10.1)
 * node v10.15.1 (also tested v13.8.0)
+* for cURL calls: GNU bash, version 4.4.12(3)-release (x86_64-unknown-cygwin)
 
 ### Setup
 

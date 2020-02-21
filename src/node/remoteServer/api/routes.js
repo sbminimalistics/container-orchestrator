@@ -49,8 +49,8 @@ const nodeRouter = (controller) => {
         if (verbose) console.log(`remote server router '/data' data: ${JSON.stringify(req.body)}`);
         controller.data(req.body).then((data) => {
             if (verbose) console.log(`router '/data' return to ${req.body.address} data: ${JSON.stringify(data)}`);
-            res.json(JSON.stringify(data));
-        })
+            res.json(data);
+        });
     });
 
     //The main instruction push endpoint. This is how Cluster updates it's nodes.

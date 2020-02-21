@@ -16,6 +16,7 @@ let RaftController = (function () {
         this._capacity = capacity;
         this._connections = {};
         this._servicePromiseResolve = this._servicePromiseReject = null;
+        this._loadLookupTable = {};
 
         this._raft = new LifeRaft(`${this._host}:${this._port}`, {
             "heartbeat": "1000 millisecond",
@@ -26,7 +27,7 @@ let RaftController = (function () {
         });
 
         this._raft.on("heartbeat", (data) => {
-            if (verbose) console.log(`>RaftController ${this._host}:${this._port} heartbeat data: ${data}`);
+            if (verbose) console.log(`>RaftController ${this._host}:${this._port} heartbeat data: ${JSON.stringify(data)}`);
         });
         this._raft.on("candidate", (data) => {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} candidate`);
@@ -36,23 +37,26 @@ let RaftController = (function () {
         });
         this._raft.on("join", (data) => {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} join data: ${data}`);
+            this.redistributeLoad().then((data) => {
+                console.log(`>RaftController load redistribution success after join on ${this._host}:${this._port}`);
+            }).catch((err) => {});
         });
         this._raft.on("leave", (data) => {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} leave data: ${JSON.stringify(data)}`);
             this.redistributeLoad().then((data) => {
-                console.log(`load redistribution success on ${this._host}:${this._port}`);
+                console.log(`>RaftController load redistribution success after leave on ${this._host}:${this._port}`);
             }).catch((err) => {});
         });
         this._raft.on("leader change", (data) => {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} leader change data: ${data}`);
         });
         this._raft.on("leader", () => {
-            if (true) console.log(`>RaftController ${this._host}:${this._port} became a leader; report this back to cluster through: ${this._clusterURL}/leader`);
+            console.log(`>RaftController ${this._host}:${this._port} became a leader; report this back to cluster through: ${this._clusterURL}/leader`);
             request.post(`${this._clusterURL}/leader`, {json: {host: this._host, port: this._port}}, (error, response, body) => {
                 if (verbose) console.log("RaftController leader post return body:", body);
             });
             this.redistributeLoad().then((data) => {
-                console.log(`load redistribution success on ${this._host}:${this._port}`);
+                console.log(`>RaftController load redistribution success after leader elected on ${this._host}:${this._port}`);
             }).catch((err) => {});
         });
         this._raft.on("data", (data) => {
@@ -123,18 +127,30 @@ let RaftController = (function () {
         }
     }
 
+    RaftController.prototype.parseMetrics = function (address, data) {
+        this._loadLookupTable[address] = data;
+        if (verbose) console.log(`RaftController parseMetrics of client: ${address} data: ${JSON.stringify(data)}`);
+    }
+
     RaftController.prototype.join = function (url) {
         if (verbose) console.log(`join on host: ${this._host} port: ${this._port}  target url: ${url}`);
-        this._raft.join(url, (function(u, c){var url2=u; var check = c; return function(packet, callback){
+        this._raft.join(url, (function(u, c, m){var url2=u; var check = c; var metrics = m; return function(packet, callback){
             if (check(url2) === true) {
                 request.post(`http://${url2}/data`, {json: packet}, (error, response, body) => {
-                    if (verbose) console.log("RaftController post return body:", JSON.parse(body));
-                    callback(error, error != null ? error : JSON.parse(body));
+                    if (verbose) console.log(`RaftController post return body: ${body}`);
+                    if (body.metrics != null) {
+                        metrics(url2, body.metrics);
+                    }
+                    if (body.type === "heartbeat ack") {
+                        if (verbose) console.log(`RaftController 'heartbeat ack' on write`);
+                    } else {
+                        callback(error, error != null ? error : body);
+                    }
                 });
             } else {
                 callback(new Error("connection blocked in configuration"));
             }
-        }})(url, this.checkConnection.bind(this)));
+        }})(url, this.checkConnection.bind(this), this.parseMetrics.bind(this)));
         return Promise.resolve("ok");
     }
 
@@ -149,6 +165,12 @@ let RaftController = (function () {
         if (verbose) console.log(`RaftController dataIN on ${this._host}:${this._port} data: ${JSON.stringify(jsonData)}`);
         return new Promise((res, rej) => {
             this._raft.emit("data", jsonData, function(data){
+                if (data instanceof Object) {
+                    data.metrics = {
+                        "capacity": this._capacity,
+                        "load": this._capacity / 2 //short-circut load value;
+                    }
+                }
                 res(data);
             }.bind(this));
         });
@@ -171,6 +193,7 @@ let RaftController = (function () {
     RaftController.prototype.redistributeLoad = function () {
         if (this._raft.state !== 1) return Promise.reject("redistributeLoad canceled; not a leader");
         console.log(`RaftController redistributeLoad invoked on the leader running at: ${this._host}:${this._port}`);
+        console.log(`RaftController _loadLookupTable: ${JSON.stringify(this._loadLookupTable)}`);
         return new Promise((res, rej) => {
             //TO-DO: implement mechanism that re-calculates how many replicas to deploy on each node connected;
             res("ok");
