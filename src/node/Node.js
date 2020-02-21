@@ -41,9 +41,18 @@ let Node = (function() {
         }
     }
 
-    NodeInternal.prototype.join = function(targetAddress, createInstance) {
+    NodeInternal.prototype.join = function(targetAddress) {
         return new Promise((res, rej) => {
             request.post(`http://${this.address}/nodes/${targetAddress}`, (error, response, body) => {
+                if (error != null) rej(error)
+                else res(body)
+            })
+        });
+    }
+
+    NodeInternal.prototype.leave = function(targetAddress) {
+        return new Promise((res, rej) => {
+            request.delete(`http://${this.address}/nodes/${targetAddress}`, (error, response, body) => {
                 if (error != null) rej(error)
                 else res(body)
             })

@@ -187,6 +187,48 @@ let Cluster = (function () {
         });
     };
 
+    Cluster.prototype.removeNode = function (data) {
+        if (verbose) console.log(`>Cluster.removeNode req data: ${JSON.stringify(data)}`);
+        var targetAddress = `${data.host}:${data.port}`;
+        var targetIndex;
+        for (var i = 0; i < this._nodes.length; i++) {
+            if (this._nodes[i].address == targetAddress) {
+                targetIndex = i;
+                break;
+            }
+        }
+
+        //return if nodes was not found based on host and port;
+        if (targetIndex == null) return Promise.resolve({"status": "node not found"});
+
+        var targetNode = this._nodes[targetIndex];
+        return new Promise((res, rej) => {
+            for (let i = 0; i < this._nodes.length; i++) {
+                if (verbose) console.log(`leave ${targetNode.address} on ${this._nodes[i].address}`);
+                if (this._nodes[i] == targetNode) continue;
+                this._nodes[i].leave(targetNode.address)
+                .then((data) => {
+                    delete this._connections[this._nodes[i].address][targetNode.address];
+                })
+                .catch((err) => {
+                    rej(err);
+                });
+                delete this._connections[this._nodes[i].address][targetNode.address];
+            }
+            delete this._connections[targetNode.address];
+            request.post(`http://${targetAddress}/exit`, {json: {}}, (error, response, body) => {
+                if (error) {
+                    if (verbose) console.log(`exit call err: ${error}`);
+                } else if (response != null) {
+                    if (verbose) console.log(`exit call success: ${JSON.stringify(body)}`);
+                }
+            });
+            this._nodes.splice(targetIndex, 1);
+            //TO-DO: impelment Promise.all for waiting .leave to complete
+            res({"status": "ok"});
+        });
+    };
+
     Cluster.serviceStates = {
         PENDING: "spreading pending",
         SPREADING: "spreading",

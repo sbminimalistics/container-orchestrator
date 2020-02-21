@@ -116,17 +116,24 @@ let RaftController = (function () {
     }
 
     RaftController.prototype.join = function (url) {
-        if (verbose) console.log(`join on host: ${this._host} port: ${this._port}  target url: ${this._url}`);
+        if (verbose) console.log(`join on host: ${this._host} port: ${this._port}  target url: ${url}`);
         this._raft.join(url, (function(u, c){var url2=u; var check = c; return function(packet, callback){
             if (check(url2) === true) {
                 request.post(`http://${url2}/data`, {json: packet}, (error, response, body) => {
                     if (verbose) console.log("RaftController post return body:", JSON.parse(body));
-                    callback(null, JSON.parse(body));
+                    callback(error, error != null ? error : JSON.parse(body));
                 });
             } else {
                 callback(new Error("connection blocked in configuration"));
             }
         }})(url, this.checkConnection.bind(this)));
+        return Promise.resolve("ok");
+    }
+
+    RaftController.prototype.leave = function (url) {
+        if (verbose) console.log(`leave on host: ${this._host} port: ${this._port}  target url: ${url}`);
+        this._raft.leave(url);
+        delete this._connections[url];
         return Promise.resolve("ok");
     }
 

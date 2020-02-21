@@ -5,39 +5,44 @@ const verbose = true;
 const router = express.Router({mergeParams: true});
 
 router.route("/nodes").post((req, res) => {
-    if (verbose) console.log(`cluster router '/nodes' post`);
+    if (verbose) console.log(`cluster router '/nodes' POST`);
     req.cluster.addNode(req.body).then((data) => {
+        res.json(data);
+    });
+}).delete((req, res) => {
+    if (verbose) console.log(`cluster router '/nodes' DELETE`);
+    req.cluster.removeNode(req.body).then((data) => {
         res.json(data);
     });
 });
 router.route("/leader").post((req, res) => {
-    if (verbose) console.log(`cluster router '/leader' post`);
+    if (verbose) console.log(`cluster router '/leader' POST`);
     req.cluster.leader = req.body;
 });
 router.route("/service").post((req, res) => {
-    if (verbose) console.log(`cluster router '/service' post`);
+    if (verbose) console.log(`cluster router '/service' POST`);
     res.json(req.cluster.callForService(req.body));
 }).get((req, res) => {
-    if (verbose) console.log(`cluster router '/service' get ..return the last service`);
+    if (verbose) console.log(`cluster router '/service' GET ..return the last service`);
     res.json(req.cluster.lastServiceCall);
 });
 router.route("/state").get((req, res) => {
-    if (verbose) console.log(`cluster router '/state'`);
+    if (verbose) console.log(`cluster router '/state' GET`);
     req.cluster.json.then((data) => {
         res.json(data);
     });
 });
 router.route("/stats").get((req, res) => {
-    if (verbose) console.log(`cluster router '/stats'`);
+    if (verbose) console.log(`cluster router '/stats' GET`);
     req.cluster.json.then((data) => {
         res.json(data);
     });
 });
 router.route("/connections").get((req, res) => {
-    if (verbose) console.log(`cluster router '/connections'`);
+    if (verbose) console.log(`cluster router '/connections' GET`);
     res.json(req.cluster.connections);
 }).put((req, res) => {
-    if (verbose) console.log(`cluster router '/connections' req.body: ${JSON.stringify(Object.keys(req.body))}`);
+    if (verbose) console.log(`cluster router '/connections' PUT req.body: ${JSON.stringify(Object.keys(req.body))}`);
     req.cluster.connections = req.body;
     res.json(req.cluster.connections);
 });

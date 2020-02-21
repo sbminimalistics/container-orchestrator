@@ -14,12 +14,20 @@ const nodeRouter = (controller) => {
 
     router.route("/nodes/:url").post((req, res) => {
         if (verbose) console.log(`remote server router '/nodes/:url' url: ${req.params.url}`);
-        controller.join(`${req.params.url}`, true).then((data) => {
+        controller.join(`${req.params.url}`).then((data) => {
             if (verbose) console.log(`remote server router join returned: ${data}`);
             controller.connections = JSON.parse(`{"${req.params.url}": 1}`);
-            res.send("ok");
+            res.json({"status": "ok"});
         }).catch((err) => {
-            res.status(403).send(err);
+            res.status(403).json({"status": err});
+        });
+    }).delete((req, res) => {
+        if (verbose) console.log(`remote server router '/nodes/' url: ${req.params.url}`);
+        controller.leave(`${req.params.url}`).then((data) => {
+            if (verbose) console.log(`remote server router leave returned: ${data}`);
+            res.json({"status": "ok"});
+        }).catch((err) => {
+            res.status(403).json({"status": err});
         });
     });
 
@@ -67,6 +75,12 @@ const nodeRouter = (controller) => {
             console.log(`then on node router`);
             res.status(200).json(data);
         });
+    });
+
+    router.route("/exit").post((req, res) => {
+        if (verbose) console.log(`remote server router '/exit'`);
+        res.send("exit");
+        process.exit();
     });
 
     router.use((req, res, next) => {
