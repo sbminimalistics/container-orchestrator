@@ -18,8 +18,8 @@ orchestrator0.addCluster(
     new Cluster(
         0, //cluster id
         new Node({"id": "node_0", "host": defaultNodeHost, "port": 8001, "capacity": 100, "spawnNewServer": true, "clusterURL": "http://localhost:8000/clusters/0"}), //new node on localhost:8001
-        new Node({"id": "node_1", "host": defaultNodeHost, "port": 8002, "capacity": 100, "spawnNewServer": true, "clusterURL": "http://localhost:8000/clusters/0"}), //on localhost:8002
-        new Node({"id": "node_2", "host": defaultNodeHost, "port": 8003, "capacity": 100, "spawnNewServer": true, "clusterURL": "http://localhost:8000/clusters/0"}), //on localhost:8003
+        new Node({"id": "node_1", "host": defaultNodeHost, "port": 8002, "capacity": 200, "spawnNewServer": true, "clusterURL": "http://localhost:8000/clusters/0"}), //on localhost:8002
+        new Node({"id": "node_2", "host": defaultNodeHost, "port": 8003, "capacity": 50, "spawnNewServer": true, "clusterURL": "http://localhost:8000/clusters/0"}), //on localhost:8003
         new Node({"id": "node_3", "host": defaultNodeHost, "port": 8004, "capacity": 100, "spawnNewServer": true, "clusterURL": "http://localhost:8000/clusters/0"}),
         new Node({"id": "node_4", "host": defaultNodeHost, "port": 8005, "capacity": 100, "spawnNewServer": true, "clusterURL": "http://localhost:8000/clusters/0"})
     )

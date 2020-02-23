@@ -97,7 +97,7 @@ let Cluster = (function () {
         if (targetService === null) {
             serviceData.status = Cluster.serviceStates.PENDING;
             serviceData.service_id = uuidv1();
-            console.log(`about to unshift ${JSON.stringify(serviceData)} into this._pendingServices: ${JSON.stringify(this._pendingServices)}`);
+            if (verbose) console.log(`about to unshift ${JSON.stringify(serviceData)} into this._pendingServices: ${JSON.stringify(this._pendingServices)}`);
             this._pendingServices.unshift(serviceData);
             targetService = serviceData;
         }
@@ -113,7 +113,7 @@ let Cluster = (function () {
         and the number of replicas service aims to deploy.
     */
     Cluster.prototype.checkIfServiceForTheSameContainerExists = function (serviceData) {
-        console.log(`>Cluster.checkIfServiceForTheSameContainerExists this._pendingServices: ${JSON.stringify(this._pendingServices)}`);
+        if (verbose) console.log(`>Cluster.checkIfServiceForTheSameContainerExists this._pendingServices: ${JSON.stringify(this._pendingServices)}`);
         if (verbose) console.log(`>Cluster.checkIfServiceForTheSameContainerExists req data: ${JSON.stringify(serviceData)}`);
         for (var i = 0; i < this._pendingServices.length; i++) {
             if (this._pendingServices[i].container.uniq_id == serviceData.container.uniq_id) {
