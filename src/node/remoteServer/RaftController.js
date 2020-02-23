@@ -36,10 +36,18 @@ let RaftController = (function () {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} state change data: ${data}`);
         });
         this._raft.on("join", (data) => {
-            if (verbose) console.log(`>RaftController ${this._host}:${this._port} join data: ${data}`);
-            this.redistributeLoad().then((data) => {
-                console.log(`>RaftController load redistribution success after join on ${this._host}:${this._port}`);
-            }).catch((err) => {});
+            if (this._raft.state !== 1) return;
+            if (true) console.log(`>RaftController ${this._host}:${this._port}`);
+            this._raft.packet("append").then((packet) => {
+                request.post(`http://${data.address}/data`, {json: packet}, (error, response, body) => {
+                    if (body.metrics != null) {
+                        this.parseMetrics(data.address, body.metrics);
+                    }
+                    this.redistributeLoad().then((data) => {
+                        if (verbose) console.log(`>RaftController load redistribution success after join on ${this._host}:${this._port}`);
+                    }).catch((err) => {});
+                });
+            })
         });
         this._raft.on("leave", (data) => {
             if (verbose) console.log(`>RaftController ${this._host}:${this._port} leave data: ${JSON.stringify(data)}`);
