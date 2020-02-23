@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const verbose = true;
+const verbose = false;
 const router = express.Router({mergeParams: true});
 
 router.route("/nodes").post((req, res) => {
