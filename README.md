@@ -11,7 +11,7 @@ This container orchestrator written in pure JavaScript (solely built for NodeJS 
 - [x] spread /service endpoint command using the reference to the leader elected
 - [x] implement <cluster>/nodes POST enpoint that allows to add new node
 - [x] implement <cluster>/nodes DELETE enpoint that allows to remove selected node from a cluster
-- [ ] employ sophisticated way of creating replicas inside the nodes based on their current load
+- [x] employ sophisticated way of creating replicas inside the nodes based on their current load
 - [ ] cover the case when two nodes from the same cluster report themselves as leader
 - [x] build a queue of service calls (only one service call on one leader at a time)
 - [ ] expose log entries through node stats
