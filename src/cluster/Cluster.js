@@ -55,13 +55,23 @@ let Cluster = (function () {
                 let result = {
                     "id": this._id,
                     "nodes": [],
-                    "connections": this._connections
+                    "connections": this._connections,
+                    "services": [].concat(this._pendingServices, this._serviceInSpread || [], this._spreadServices)
                 };
                 let promises = [];
                 this._nodes.map((node) => promises.push(node.json));
                 Promise.all(promises).then((answers) => {
                     answers.map((ans) => {
                         result.nodes.push(ans);
+                    });
+                    return new Promise((res1, rej1) => {
+                        request.get(`http://${this._leader.host}:${this._leader.port}/loadLookupTable`, (error, response, body) => {
+                            res1(JSON.parse(body));
+                        })
+                    });
+                }).then((loadLookupTable) => {
+                    result.services.map((service) => {
+                        service["load_distribution"] = loadLookupTable[service.service_id] || {};
                     });
                     res(result);
                 });

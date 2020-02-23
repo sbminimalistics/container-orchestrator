@@ -76,7 +76,7 @@ let RaftController = (function () {
             if (this._pendingRedistribution && Object.keys(this._nodeMetrics).length >= this._raft.nodes.length) {
                 this._pendingRedistribution = false;
                 this.redistributeLoad().then((data) => {
-                    console.log(`> RaftController load redistribution success after leader elected on ${this._host}:${this._port}`);
+                    console.log(`> RaftController load redistribution success after leader elected on ${this._host}:${this._port} data: ${data}`);
                 }).catch((err) => {});
             }
         });
@@ -102,6 +102,11 @@ let RaftController = (function () {
             if (verbose) console.log(`> RaftController on('rpc' @ ${this._host}:${this._port} majority instructed: ${JSON.stringify(data)}`);
             if (data.type != null && data.type == "load distribution") {
                 this._loadLookupTable = data.services;
+                this._load = 0;
+                Object.keys(this._loadLookupTable).map(key => this._loadLookupTable[key]).map((service) => {
+                    this._load += service[this.address] ? service[this.address] : 0;
+                });
+                if (verbose) console.log(`> RaftController ${this._host}:${this._port} load: ${this._load} of ${this._capacity}`)
             }
         });
     }
@@ -127,7 +132,9 @@ let RaftController = (function () {
             return {
                 "host": this._host,
                 "port": this._port,
-                "state": this.state
+                "state": this.state,
+                "capacity": this._capacity,
+                "load": this._load
             };
         },
         get nodes() {
@@ -139,6 +146,9 @@ let RaftController = (function () {
         },
         get connections() {
             return this._connections;
+        },
+        get loadLookupTable() {
+            return this._loadLookupTable;
         }
     }
 
@@ -201,7 +211,7 @@ let RaftController = (function () {
                 if (data instanceof Object) {
                     data.metrics = {
                         "capacity": this._capacity,
-                        "load": this._capacity / 2 //short-circut load value;
+                        "load": this._load //short-circut load value;
                     }
                 }
                 res(data);
@@ -248,6 +258,7 @@ let RaftController = (function () {
                     }
                 }
                 if (verbose) console.log(`> RaftController load distribution table: ${JSON.stringify(loadDistribution)}`);
+                this._loadLookupTable = loadDistribution.services;
                 this._raft.message(LifeRaft.CHILD, loadDistribution);
                 res({"status": "ok"});
             });

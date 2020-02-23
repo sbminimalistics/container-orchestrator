@@ -10,6 +10,9 @@ const Cluster = require('./src/cluster/Cluster');
 const Node = require('./src/node/Node');
 const orchestrator0 = require('./src/orchestrator/Orchestrator');
 
+//reset levelup databases by simply deleting the directory
+require("lignator").remove("./level_dbs/");
+
 //add couple of initial clusters
 console.log('setup the main orchestrator...');
 const defaultNodeHost = process.env.DEFAULT_HOST || "localhost";

@@ -66,7 +66,12 @@ const nodeRouter = (controller) => {
 
     router.route("/stats").get((req, res) => {
         if (verbose) console.log(`remote server router '/status'`);
-        res.status(200).json(controller.json);
+        res.json(controller.json);
+    });
+
+    router.route("/loadLookupTable").get((req, res) => {
+        if (verbose) console.log(`remote server router '/loadLookupTable'`);
+        res.json(controller.loadLookupTable);
     });
 
     router.route("/nodes/count").get((req, res) => {
