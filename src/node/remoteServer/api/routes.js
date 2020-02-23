@@ -79,7 +79,6 @@ const nodeRouter = (controller) => {
     router.route("/rpc").post((req, res) => {
         if (verbose) console.log(`remote server router '/rpc'`);
         controller.rpc(req.body).then((data) => {
-            console.log(`then on node router`);
             res.json(data);
         });
     });
