@@ -1,6 +1,13 @@
 # Container Orchestrator
 
-This container orchestrator written in pure JavaScript (solely built for NodeJS environment) that mimics the idea of Swarm or Kubernetes running on Docker. By simply installing npm dependencies and running `npm run start` some predefined cluster and it's nodes are created. Starting from which, using the RESTful endpoints given beneath, further control is possible. In this initial setup only one instance of cluster is created, although multiple clusters is supported.
+This container orchestrator written in pure JavaScript (solely built for NodeJS environment) that mimics the idea of Swarm or Kubernetes running on Docker. By simply installing npm dependencies and running `npm run start` some predefined cluster and it's nodes are created. Starting from which, using the RESTful endpoints given beneath, further control is possible. In this initial setup only one instance of cluster is created, although multiple (not connected) clusters is supported.
+
+## Project design
+This project is based on Raft Consensus Algorithm (https://raft.github.io/) implemented in javascript liferaft (https://www.npmjs.com/package/liferaft) libraray.
+Although there is a staging level (Cluster class instantiated on localhost:8000 host in the default setup) which forwards /service endpoint calls into the actual cluster the idea of self re-adjustment in case of any change in setup is still intact. After a cluster settles based on the changes happend and a leader is elected, the leader itself reports back to the staging level that communication into the cluster should happen through it. If a leader is not yet ellected, service calls are added to a queue until the new leader appears. With current setup services are send into clusters one by one (the forthcoming waits until the current is fulfilled/committed). After the service gets executed it is assigned with a parameter 'log_index' which reflects the position in cluster's database. After all cluster's nodes accepts the service, the leader calculates how load should be spread based on 'capacity' and 'load' nodes hold at the given moment.
+
+## Foreseen improvements
+As it became clear during development, cluster should accept service calls without the staging logic defined earlier. Cluster should accept service calls through any node and forward them to the leader to be spread.
 
 # Task list
 - [x] create boilerplate of RESTful api
@@ -15,6 +22,7 @@ This container orchestrator written in pure JavaScript (solely built for NodeJS 
 - [ ] cover the case when two nodes from the same cluster report themselves as leader
 - [x] build a queue of service calls (only one service call on one leader at a time)
 - [ ] expose log entries through node stats
+- [ ] remove Cluster as a staging part and send services straight into cluster
 - [ ] think of nested clusters (container as a cluster)
 
 ## Development environment
@@ -72,9 +80,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' loca
 
     method: `GET`
 
-    URL param: `cluster_id=[alphanumeric]`
-
-    - [ ] implement `PUT` | `DELETE`
+    URL param: `cluster_id=<alphanumeric>`
 
 ## Cluster endpoints **/clusters/:cluster_id/**
 * **/service**
@@ -82,7 +88,6 @@ curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' loca
     method: `POST`
 
     JSON content:
-
     ```
     {
         containers: [
@@ -97,30 +102,46 @@ curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' loca
         ]
     }
     ```
+* **/nodes**
+    Join a new node into the cluster
+    method: `POST`
+
+    JSON content:
+    ```
+    {
+        id: <alphanumeric>,
+        host: <URL base>
+        port: <URL port>
+        capacity: <number>
+        spawn: <boolean>
+    }
+    ```
+
+    Delete a node
+    method: `DELETE`
+
+    JSON content:
+    ```
+    {
+        host: <URL base>
+        port: <URL port>
+    }
+    ```
+
 * **/state**
 
     method: `GET`
 
     - [] implement state of the last service call
 
+
+### REST endpoints on the nodes spawned (eg. using localhost:8001 as a base URL)
 * **/stats**
-    Returns stats of the nodes running in the cluster.
-
-    method: `GET`
-
-
-### Node REST endpoints on the nodes spawned (using localhost:8001 as a base URL)
-* **/**
-    Returns a definition of the node
+    Returns the stats of the given node
 
     method: `GET`
 
 * **/connections**
     Returns the connections available for the node
-
-    method: `GET`
-
-* **/stats**
-    Returns the stats of the given node
 
     method: `GET`
