@@ -102,6 +102,11 @@ curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' loca
         ]
     }
     ```
+
+* **/state**
+    Get the cluster's statistics
+    method: `GET`
+
 * **/nodes**
     Join a new node into the cluster
     method: `POST`
@@ -127,13 +132,6 @@ curl -X POST -H "Content-Type: application/json" -d '{"localhost:8002": 0}' loca
         port: <URL port>
     }
     ```
-
-* **/state**
-
-    method: `GET`
-
-    - [] implement state of the last service call
-
 
 ### REST endpoints on the nodes spawned (eg. using localhost:8001 as a base URL)
 * **/stats**
