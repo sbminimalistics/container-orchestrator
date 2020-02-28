@@ -167,7 +167,7 @@ let Cluster = (function () {
     Cluster.prototype.addNode = function (data) {
         if (verbose) console.log(`>Cluster.addNode req data: ${JSON.stringify(data)}`);
         return new Promise((res, rej) => {
-            var node = new Node({"id": data.id, "host": data.host, "port": data.port, "capacity": data.capacity, "spawnNewServer": data.spawn, "clusterURL": `http://localhost:8000/clusters/${this._id}`});
+            var node = new Node({"id": data.id, "host": data.host, "port": data.port, "capacity": data.capacity, "spawnNewServer": data.spawn, "clusterURL": `http://0.0.0.0:8000/clusters/${this._id}`});
             if (this._connections[node.address] == null) {
                 this._connections[node.address] = {};
             }

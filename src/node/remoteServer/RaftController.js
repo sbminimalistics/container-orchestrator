@@ -26,7 +26,7 @@ let RaftController = (function () {
             "election min": "2000 millisecond",
             "election max": "6000 millisecond",
             "Log": Log,
-            "path": `level_dbs/db_${this._port}`
+            "path": `./level_dbs/db_${this._port}`
         });
 
         this._raft.on("heartbeat", (data) => {
